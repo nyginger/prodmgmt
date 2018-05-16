@@ -8,7 +8,7 @@ from flask_admin import BaseView, expose
 #from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
 from flask_mail import Mail
 import os
-from eins_app import app,db
+from prod_app import app,db
 from models import LimitModelView,Works,Persons,Stage,Lot,Stage_procs, \
                     Anod,Company,Product,Gen,LotView,WorkView
 
