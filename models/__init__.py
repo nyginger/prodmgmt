@@ -5,7 +5,7 @@
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
-from eins_app import db
+from prod_app import db
 
 
 
