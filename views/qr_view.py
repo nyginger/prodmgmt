@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, send_file, send_from_director
 import json
 import os
 import pyqrcode
-from eins_app import app,db,APP_ROOT
+from prod_app import app,db,APP_ROOT
 from models import Works,Persons,Stage,Lot,Stage_procs, \
                     Anod,Company,Product,Gen
 
