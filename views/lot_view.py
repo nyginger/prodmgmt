@@ -7,7 +7,7 @@ import json
 import os
 import datetime
 from dateutil.parser import parse
-from eins_app import app,db,APP_ROOT
+from prod_app import app,db,APP_ROOT
 from models import Works,Persons,Stage,Lot,Stage_procs, \
                     Anod,Company,Product,Gen
 
