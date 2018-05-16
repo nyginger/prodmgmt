@@ -1,0 +1,15 @@
+flask
+flask-socketio
+flask-sqlalchemy
+flask-restless
+flask-admin
+flask-user
+flask-mail
+eventlet
+pillow
+python-resize-image
+pyqrcode
+pypng
+qrtools
+tablib
+pandas

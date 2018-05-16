@@ -1,0 +1,132 @@
+{% macro render_proclist(new_procs,stage_procs,com_list) %}
+{% block head %}
+<style>
+    .grid-icon{
+        float: left;
+		width: 33px;
+		height: 33px;
+		border: 0px;
+    }
+</style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% endblock %}
+<div class="card">
+        <div class="card-header">
+            <h5 style="color:deepskyblue;">공정목록 수정/추가</h5>
+            
+        </div>
+        
+        <div class="card-body">
+             <div class="row" style="float:top;width:100%;">
+  
+                    <div class="col-lg-6 col-12">
+                        <div class="row" style="float:left; margin:0; width:100%;">
+                              <p class="card-text"><b style="color:darkblue;">목록 불러오기</b></p>
+                        </div>
+                        <div class="row" style="float:left; margin:0; width:100%;">
+                            <div class="form-group">
+                                <select class="form-control" name="product" id="sel_product2" style="width:100%;" onchange="procLoad2();" >
+                                        <option>공정목록 선택</option>
+                                        {% for proc in stage_procs|sort(attribute='company') %}
+                                            <option value="{{proc.id}}">{{proc.company}} | {{proc.product}}</option>
+                                        {% endfor %}
+                                </select>
+                            </div>
+                        </div>    
+                                
+                            
+           
+                        <div class="row" style="float:top; margin:0; width:100%;">
+                            
+                            <div class="grid-sizer">
+                                <div class="form-group">
+                                    <form id="procform"  method="POST">
+                                        <input id="proc_id" name="prod_id" type="hidden">
+                                        
+                                        <select class="form-control" name="auto_procs" id="auto_procs" multiple size="5" style="width:90%;"></select>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="grid-controller">
+                                <div class="grid-icon">
+                                    <div class="row" style="float:top; margin-top:0px;">
+                                        <a href="JavaScript:void(0);" id="proc-up"> <i class="material-icons">keyboard_arrow_up</i></a>
+                                    </div>
+                                </div>
+                                <div class="grid-icon">
+                                    <div class="row" style="float:top; margin-top:0px;">
+                                        <a href="JavaScript:void(0);" id="proc-down"><i class="material-icons">keyboard_arrow_down</i></a>
+                                    </div>
+                                </div>
+                                <div class="grid-icon">
+                                    <div class="row" style="float:top; margin-top:0px;">
+                                        <a href="JavaScript:void(0);" id="proc-remove"><i class="material-icons">clear</i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6 col-12">
+                            <div class="row"  style="float:top;margin-left:0px;width:100%;">
+                                    <p class="card-text"><b style="color:darkblue;">공정 추가</b></p>
+                            </div>
+                            <div class="row" style="float:top; margin-left:0px; width:95%;">
+                                    <div class="grid-sizer">
+                                        <div class="form-group">
+                                            <select class="form-control" name="newprc" id="newprc" multiple style="width:100%;">
+                                                    {% for procs in new_procs|sort(attribute='id') %}
+                                                        <option value="proc">{{procs.work}}</option>
+                                                    {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="grid-controller">
+                                            <a href="JavaScript:void(0);" id="proc-add" type="button" class="btn btn-secondary btn-sm">추가</a>
+                                    </div>
+                            </div>
+                            <div class="row">
+                                    <a class="btn btn-outline-primary btn-block" href="#" onclick="procUpdate(event);">수정</a>
+                                    <a id="btn-del_proclist" href="#" class="btn btn-outline-danger btn-block">목록 삭제</a>
+                            </div>
+                 
+                    </div>
+   
+                </div>
+           
+   
+            
+            <div style="padding-top: 10px;"></div>
+            
+
+    	
+    
+                <div class="form-group col-md-3 col-xs-12">
+                    <h6><b>새로운 공정목록으로 저장</b></h6>
+                </div>
+                <div class="form-group col-md-3 col-xs-12">
+                    <label for="inputText">업체 선택</label>
+                    <select class="form-control" name="com" id="com" style="width:100%;" placeholder="업체선택">
+                            {% for comp in com_list|sort(attribute='id') %}
+                                <option value="{{comp.com_name}}">{{comp.com_name}}</option>
+                            {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-3 col-xs-12">
+                    <label for="inputText">제품종류</label>
+                    <input type="text" name="prod_cat" id="prod_cat" class="form-control" style="width:100%;" placeholder="제품종류" >
+                </div>
+                <select name="new_stage_list" id="new_stage_list" multiple style="display:none;" ></select>
+            
+                <div class="form-group col-md-3 col-xs-12">
+                    <input class="btn btn-secondary btn-sm" type=submit value="저장" onclick="procAdd(event);">
+                </div>
+                
+                
+     
+
+            
+        </div>
+</div>
+
+{% endmacro %}

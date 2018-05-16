@@ -1,0 +1,67 @@
+{% macro render_photoview(lot_id,zone,img_stage,stages) %}
+{% block head %}
+<link rel="stylesheet" href="{{url_for ('static', filename='myModal2.css')}}" >
+<link rel="stlyesheet" href="{{url_for('static', filename='colorbox.css')}}">
+<script type="text/javascript" src="{{url_for('static', filename='jquery.colorbox.js')}}"></script>
+
+<style>
+
+    .grid-item {
+        float: left;
+        width: 120px;
+        height: 180px;
+        border: 1px solid hsla(0, 0%, 0%, 0.1);
+        border-radius: 5px;
+    }
+        /* margin-bottom: 20px; */
+      
+      
+      .grid-item--width2 { width: 160px; }
+      .grid-item--height2 { height: 140px; }   
+     
+      .stamp {
+        position: relative;
+        background: orange;
+        border: 4px dotted black;
+      }
+
+
+      
+</style>
+<script>
+        $(document).ready(function(){
+            $("#gallery").colorbox();
+        })
+</script>
+{% endblock %}
+<div class="card">
+    <h4 class="card-header"><b style="color:lightseagreen;">{{zone}}</b></h4>
+
+   
+    <div class="card-body">
+        <div class="grid">
+
+                {% if img_stage or img_stage!='' %}    
+                    {% for image_name in img_stage %}
+                    <div class="grid-item">
+                            <a href="{{url_for('show_file', filelocation=image_name, lot_id=lot_id)}}"><img class="img-responsive" src="{{url_for('send_image',lot_id=lot_id, filename=image_name) }}"></a>
+                        {% set img_nm = image_name.split('_') %}
+                        {% for stg in stages %}
+                            {% if stg.id|int==img_nm[2]|int %}
+                            <small> {{stg.work}}</small>
+                            <br><small>{{img_nm[4]}}&#32;{{img_nm[5][:-4]}}</small>
+                            {% endif %}
+                        {% endfor %}
+                   
+                    </div>
+
+                    {% endfor %}
+                {% else %}
+                    <h5>사진없음.</h5>
+                {% endif %}
+        </div>
+    </div>
+</div>
+
+
+{% endmacro %}

@@ -1,0 +1,247 @@
+<!DOCTYPE html><html lang="en">
+    <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css')}}" >
+          <link rel="stylesheet" href="{{ url_for('static', filename='cover.css')}}" > 
+          <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+          <script src="static/jquery.min.js"></script>
+          <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+          <title>제품별 통계 </title>      <!-- import plugin script -->   
+          <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js'></script>
+   </head>
+   <body>
+       
+       <!-- <div class="card" style="width: 50rem;"> -->
+            <div data-role="main" class="ui-content">
+                <h3 class="page-header">월별 제품별 수량차트</h3>
+                
+                <nav class="breadcrumb">
+
+                    {% if ctype | int ==1 %}
+                            <span class="breadcrumb-item active">제품별 월별수량</span>
+                            <a class="breadcrumb-item" href="#" onclick="load2();">제품별 수량비교</a>
+                    {% else %}
+                            <a class="breadcrumb-item" href="#" onclick="load1();">제품별 월별수량</a>
+                            <span class="breadcrumb-item active">제품별 수량비교</span>
+                    {% endif %}
+                </nav>
+              <form method="post" action="#">
+                    <input type="hidden" id="ctype" name="ctype" value="{{ctype}}" >
+                    {% if ctype | int==1 %}
+                            <select id="product1" onchange="updateChart1();">
+                            <option value="전체">전체</option>
+                                {% for p in prod_list %}
+                                    {% if p[0]==prod | int  %}
+                                        <option value="{{p[0]}}" selected>{{p[1]}}</option>
+                                    {% else %}
+                                        <option value="{{p[0]}}">{{p[1]}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <select id="company1" onchange="updateChart1();">
+                                <option value="전체">전체</option>
+                                {% for c in  com_list %}
+                                    {% if c[0]==com | int  %}
+                                        <option value="{{c[0]}}" selected>{{c[1]}}</option>
+                                    {% else %}
+                                        <option value="{{c[0]}}">{{c[1]}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                    {% else %}
+                            <label for="year">Year:</label>
+                            <input type="range" name="year" id="year" value="2017" min="2015" max="2020" onchange="updateChart2();">
+                            <label for="month">Month:</label>
+                            <input type="range" name="month" id="month" value="1" min="1" max="12" onchange="updateChart2();">
+
+                            <select id="company2" onchange="updateChart2();">
+                                <option value="전체">전체</option>
+                                {% for c in  com_list %}
+                                    {% if c[0]==com | int  %}
+                                        <option value="{{c[0]}}" selected>{{c[1]}}</option>
+                                    {% else %}
+                                        <option value="{{c[0]}}">{{c[1]}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                    {% endif %}
+                </form>
+           <!-- </div> -->
+
+
+            <div class="chartarea"><canvas id="chart" width="100" height="100"></canvas></div>
+        </div>
+        <script>
+
+
+           // get bar chart canvas
+           var mychart = $("#chart");
+           var ctype= $("#ctype").val();
+           if (ctype==1){
+                var url='/chrtdata_lotcnt?ctype=1&product=6&company=null';
+            } else {
+                var url='/chrtdata_lotcnt?ctype=2&year=2017&month=1&product=null&company=null';
+            }
+           var getData=$.get(url);
+            getData.done(function(results){
+                var chrtlabels= results.labels;
+                var chrtdata=results.values;
+                var data =  {
+                        labels : chrtlabels,
+                        datasets : [{
+                                label: '제품',
+                                backgroundColor: "rgba(255,99,132,0.2)",
+                                borderColor: "rgba(255,99,132)",
+                                data : chrtdata
+                        }]
+                    };
+                    var options = {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                }
+                            }]
+                        }
+                    };
+                if (ctype==1) {
+                    var chart = new Chart(mychart,{
+                        type: 'bar',
+                        data: data,
+                        options: options
+                    });
+                } else {
+                    var chart = new Chart(mychart,{
+                        type: 'horizontalBar',
+                        data: data,
+                        options: options
+                    });
+                }
+
+                Chart.plugins.register({
+                    afterDatasetsDraw: function(chart, easing) {
+                        // To only draw at the end of animation, check for easing === 1
+                        var ctx = chart.ctx;
+                        chart.data.datasets.forEach(function (dataset, i) {
+                            var meta = chart.getDatasetMeta(i);
+                            if (!meta.hidden) {
+                                meta.data.forEach(function(element, index) {
+                                    // Draw the text in black, with the specified font
+                                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                                    var fontSize = 16;
+                                    var fontStyle = 'normal';
+                                    var fontFamily = 'Helvetica Neue';
+                                    ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+                                    // Just naively convert to string for now
+                                    var dataString = dataset.data[index].toString();
+                                    // Make sure alignment settings are correct
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'middle';
+                                    var padding = 5;
+                                    var position = element.tooltipPosition();
+                                    ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+                                });
+                            }
+                        });
+                    }
+                });
+
+            });
+
+            function updateChart1(){
+                $('#chart').remove();
+                $('div.chartarea').append('<canvas id="chart" width="100" height="100"></canvas>');
+                var mychart  = $("#chart");
+                var product=$('#product1').val();
+                var company=$('#company1').val();
+                var url='/chrtdata_lotcnt?ctype=1&product=' + product + '&company=' + company;
+              
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                    var chrtlabels= results.labels;
+                    var chrtdata=results.values;
+                    var data =  {
+                        labels : chrtlabels,
+                        datasets : [{
+                                label: '월별 수량',
+                                backgroundColor: "rgba(255,99,132,0.2)",
+                                borderColor: "rgba(255,99,132)",
+                                data : chrtdata
+                        }]
+                    };
+                    var options = {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero:true
+                                    }
+                                }]
+                            },
+                            title: {
+                                display: true,
+                                text: company + ' ' + product + '제품 월별 수량'
+                            }
+                        };
+                    var chart = new Chart(mychart,{
+                        type: 'bar',
+                        data: data,
+                        options: options
+                    });
+                });
+             }
+
+            function updateChart2(){
+                $('#chart').remove();
+                $('div.chartarea').append('<canvas id="chart" width="100" height="100"></canvas>');
+                var mychart  = $("#chart");
+                var year=$('#year').val();
+                var month=$('#month').val();
+                var company=$('#company2').val();
+                var url='/chrtdata_lotcnt?ctype=2&year=' + year + '&month=' + month + '&product=null&company=' + company;
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                    var chrtlabels= results.labels;
+                    var chrtdata=results.values;
+                    var data =  {
+                        labels : chrtlabels,
+                        datasets : [{
+                                label: company + ' 수량',
+                                backgroundColor: "rgba(255,99,132,0.2)",
+                                borderColor: "rgba(255,99,132)",
+                                data : chrtdata
+                        }]
+                    };
+                    var options = {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero:true
+                                    }
+                                }]
+                            },
+                            title: {
+                                display: true,
+                                text: year + '년' + month + '월 제품별 수량'
+                            }
+                        };
+                    var chart = new Chart(mychart,{
+                        type: 'horizontalBar',
+                        data: data,
+                        options: options
+                    });
+                });
+            }
+
+            function load1(){
+                window.location.replace("/chart_lot?ctype=1");
+            }
+            function load2(){
+                window.location.replace("/chart_lot?ctype=2");
+            }
+
+
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,18 @@
+{% extends 'admin/master.html' %}
+
+{{ super() }}
+{% block title %}EINS Production Database{% endblock title %}
+{% block brand %}<h1><b>EINS</b></h1>{% endblock brand %}
+{% block body %}
+<div class="row-fluid">
+    <h1>EINS Production DataBase</h1>
+    <p class="lead">
+        생산관리용 DB (DB조회/입력용)
+    </p>
+    <p>
+        제조/품질용 DB는 아래 버튼으로 이동하세요.
+    </p>
+
+    <a class="btn btn-primary" href="/"><i class="icon-arrow-left icon-white"></i> Home</a>
+</div>
+{% endblock body %}

@@ -1,0 +1,132 @@
+{% extends "template.html" %}
+{% block head %}
+
+<style>
+  body {
+    padding-top: 50px;
+    min-height: 600px;
+  }
+</style>
+<link rel="stylesheet" href="{{url_for ('static', filename='semantic.min.css')}}" >
+<script src="{{url_for ('static', filename='semantic.min.js')}}"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="{{url_for('static', filename='menu.css')}}">
+{% endblock %}
+
+{% block body %}
+    <!--<script type="text/javascript" src="static/socket.io.slim.js"></script> -->
+<script type="text/javascript" src="{{url_for('static',filename='app.js')}}"></script>
+<script>
+
+function RemoveItself(elem) {
+  var str_person= document.getElementById('person').value;
+  var person= str_person.split(",");
+  person=$.grep(person, function(a){
+          return a!=elem.value;
+    });
+  document.getElementById('person').setAttribute("value", person.toString());
+  elem.parentNode.removeChild(elem);
+}
+
+
+</script>
+
+<div style="padding-top: 35px;"></div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-12 col-md-3">
+          <form id="msgform" action="" method="POST" enctype="multipart/form-data" >
+            <div style="padding-top: 10px;"></div>
+            <b>공정입력 <span class="glyphicon glyphicon-arrow-down"></span></b>
+            <div class="clearfix" style="margin-top: 5px;"></div>
+            <div class="input-group" style="z-index:0;">
+              <input type="text" id="lot" name="lot_id" class="lot_id form-control" placeholder="Lot번호" onkeypress="return onSearchLot(event)">   
+               <span class="input-group-btn"> 
+               <button type="button" id="id_btnScan" class="btn btn-outline-primary" onclick="search_lot(event);">Lot번호 조회</button> -->
+               <!--<button type="button" id="id_btnScan" class="btn btn-primary" onclick="scan_lot(event);">Lot번호스캔</button> -->
+              </span>
+          </div>
+          <div style="padding-top: 5px;"></div>
+          <div class="input-group" style="z-index:0;">
+              <input type="text" id="per" name="per" class="form-control" placeholder="작업자" onkeypress="return onInsPer(event)">  
+              <input type="hidden" id="person" name="person">   
+               <span class="input-group-btn">
+               <button type="button" id="id_btnScan" class="btn btn-outline-primary" onclick="insPerson(event);">작업자 입력</button>-->
+              <!-- <button type="button" id="id_btnScan" class="btn btn-primary" onclick="scan_person(event);">작업자 스캔</button> -->
+              </span>
+          </div>
+          <div class="card">
+              <div class="card-body" >
+                  <h5 style="color:rgba(58, 58, 58, 0.51);">현재 작업자</h5>
+                  <div class="person_box"></div>
+              </div>
+          </div>
+
+            <div style="padding-top: 5px;"></div>
+            <div class='info'></div>
+            <div style="padding-top: 5px;"></div>
+            <select id="wn" name="work_name" class="work_name form-control" placeholder="공정" onchange="procChange();">
+              {% for st in stages %}
+                  <option value="{{st.id}}">{{st.work}}</option>
+              {% endfor %}
+            </select>
+            <div style="padding-top: 5px;"></div>
+            <select id="io" name="in_out" class="form-control" placeholder="투입/완료" onchange="ioChange();">
+              <option>투입</option>
+              <option>완료</option>
+            </select>
+            <div style="padding-top: 5px;"></div>
+            <input type="text" id="msg" name="message" class="work_name form-control" placeholder="메모" > 
+            <!--<input type="text" id="wn" name="work_name" class="work_name form-control" placeholder="공정" > -->
+            <div style="padding-top: 5px;"></div>
+            
+            <button type="submit" class="btn btn-lg btn-primary btn-block"><span class="glyphicon glyphicon-send"></span> Send</button>
+          <!-- <a href="{{url_for('upload')}}" class="btn btn-success btn-block">사진올리기</a> !-->
+          </form>
+          <form id="photoform" method="POST" action="/up_result" enctype="multipart/form-data"> 
+         <!--  <form id="photoform" method="POST"  enctype="multipart/form-data"> -->
+
+            <input type="hidden" id="wn2" name="work_name">
+            <input type="hidden" id="lot2" name="lot_id" >
+            <input type="hidden" id="com2" name="company">
+            <input type="hidden" id="prod2" name="prod_name">
+            <input type="hidden" id="io2" name="in_out">
+            <input type="hidden" id="msg2" name="message">
+            <input type="hidden" id="per2" name="person">
+            <div style="padding-top: 5px;"></div>
+            <label for="image" >사진선택</label>
+            <input type="file" id="file" name="file" class="btn btn-lg btn-default" accept="image/*" multiple>
+            <button type="submit" class="btn btn-lg btn-primary btn-block" >사진업로드</button>
+          </form>
+          <div style="padding-top: 10px;"></div>
+
+
+
+
+      </div>
+
+        <main class="col-sm-12 col-md-9 pt-3" role="main">
+          <h3 class="page-header">작업현황</h3>
+
+          {% from "_zone_nav.html" import render_zone_nav %}
+          {{render_zone_nav()}}
+
+            <iframe src="{{url_for('zone_home',zone_id=zone_id)}}" width="100%" height="500px;" scrolling="yes" frameborder=0></iframe> 
+            
+           
+        </main>
+      </div>
+    </div>
+
+<script>
+$(document).ready(function(){
+  var scr_height=parseInt($(window).height()*1.25);
+  console.log(scr_height);
+  $('iframe').attr('height',scr_height.toString()+'px;');
+
+});
+
+</script>
+
+{% endblock %}

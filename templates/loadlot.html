@@ -1,0 +1,278 @@
+{% extends 'template.html' %}
+{% block head %}
+<script src="{{url_for('static', filename='lotinfo.js')}}"></script>
+<link rel="stylesheet" href="{{url_for ('static', filename='semantic.min.css')}}" >
+<script src="{{url_for ('static', filename='semantic.min.js')}}"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="{{url_for('static', filename='menu.css')}}">
+<script>
+
+	function closeModal1(){
+		$('#modal1').modal('hide');
+	}
+	
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+		{% from "_zone_nav.html" import render_zone_nav %}
+		{{render_zone_nav()}}
+	<div class="card">
+		{% if lot %}
+			<h4 class="card-header"><b style="color:lightseagreen;">LOT정보 수정</b></h4>
+		{% else %}
+			<h4 class="card-header"><b style="color:lightseagreen;">LOT 등록</b></h4>
+		{% endif %}
+		<div class="card-body">
+
+			<form id="lotform" action="#" method="POST" >
+				<div class="form-row">
+						<div class="form-group col-md-6">
+							<label for="inputText">LOT ID</label>
+							<input id="id" type="hidden" value="{{lot.id}}">
+							<div class="input-group" style="z-index:0;">
+								{% if lot %}
+									<input id="lot_id" type=text name="lot_id" class="form-control" placeholder="LOT ID" value="{{lot.lot_id}}" readonly>
+								{% else %}
+									<input id="lot_id" type=text name="lot_id" class="form-control" placeholder="LOT ID" onkeypress="return load_info(event)">
+								{% endif %}
+								<span class="input-group-btn">
+									<button type="button" class="btn btn-outline-primary" onclick="load_lotpage(event);">LOT조회</button>
+								</span>
+							</div>
+						</div>
+
+					<div class="form-group col-md-6">
+						<label for="inputText">업체명</label>
+						<input id="com_id" type="hidden" name="com_id" value="{{lot.com_id}}">
+						<input id="company" list="com" name="com" class="form-control"  placeholder="업체명" value="{{lot.company}}">
+							<datalist id="com">
+							{% for com in com_list %}
+								<option value="{{com.com_name}}">
+							{% endfor %}
+							</datalist>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group col-md-6">
+						<label for="inputText">제품타입</label>
+						<input id="prod_id" type="hidden" name="prod_id" value="{{lot.prod_type}}">
+						
+						{% if lot %}
+							{% if lot.prod_type %}
+								{% for p in product %}
+									{% if p.prod_no==lot.prod_type %}
+										<input id="product" list="prod" name="prod_type" size=15 class="form-control"  placeholder="제품타입" value="{{p.prod_name}}">
+									{% endif %}
+								{% endfor %}
+							{% endif %}
+						{% else %}
+							<input id="product" list="prod" name="prod_type" size=15 class="form-control"  placeholder="제품타입" value="{{lot.prod_category}}">	
+						{% endif %}
+							<datalist id="prod">
+							{% for prod in product %}
+								<option value="{{prod.prod_name}}">
+							{% endfor %}
+							</datalist>
+
+					</div>
+					<div class="form-group col-md-6">
+						<label for="inputText">제품</label>
+						<input id="prod_name" type="text" name="prod_name" class="form-control" placeholder="제품" value="{{lot.prod_name}}">
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group col-md-3">
+						<label for="inputText">수량</label>
+						<input id="cnt" type="text" name="counts" class="form-control" placeholder="수량" value="{{lot.counts}}">
+					</div>
+					<div class="form-group col-md-4">
+						<label for="inputText">담당자</label>
+						<input id="person" type="text" name="person" class="form-control" placeholder="담당자" value="{{lot.person}}">	
+					</div>
+					<div class="form-group col-md-2">
+						<label for="inputText">세대</label>
+						<input id="gen" type="text" name="gen" class="form-control" placeholder="세대" value="{{lot.gen}}">	
+					</div>
+					<div class="form-group col-md-3">
+						<label for="inputText">도금종류</label>
+						<input id="anod_type" list="anod" name="anod_type" class="form-control" placeholder="도금 종류" value="{{lot.anod_type}}">	
+							<datalist id="anod" >
+								{% for ad in anod %}
+									<option value="{{ad.anod_type}}">
+								{% endfor %}
+							</datalist>
+					</div>
+				</div>
+				<div class="form-row">
+					
+					<div class="form-group col-md-12">
+							<label for="inputText">제품SN</label>
+							<input id="prod_serial" type="text" name="prod_serial" class="form-control" placeholder="제품SN" value="{{lot.prod_serial}}">	
+					</div>
+				</div>
+				<div class="form-row">
+						<div class="form-group col-md-2">
+							<label for="inputText">폴리싱 유무</label>
+							<select id="pol" name="pol_YN" class="form-control" placeholder="폴리싱 유무" value="{{lot.pol_YN}}">
+								<option>유</option>
+								<option>무</option>
+							</select>	
+						</div>
+			
+						<div class="form-group col-md-2">
+							<label for="inputText">마스킹 유무</label>
+							<select id="mask" name="mask_YN" class="form-control" placeholder="마스킹 유무" value="{{lot.mask_YN}}">
+								<option>유</option>
+								<option>무</option>
+							</select>	
+						</div>
+						<div class="form-group col-md-2">
+							<label for="inputText">실링 유무</label>
+							<select id="shil" name="shil_YN" class="form-control" placeholder="실링 유무" value="{{lot.shil_YN}}">
+								<option>유</option>
+								<option>무</option>
+							</select>	
+						</div>
+						<div class="form-group col-md-3">
+								<label for="inputText">실링 타입</label>
+								<select id="shil_type" name="shil_type" class="form-control" placeholder="실링 타입" value="{{lot.shil_type}}">
+									<option>-</option>
+									<option>DI</option>
+									<option>N</option>
+								</select>	
+						</div>
+						<div class="form-group col-md-3">
+							<label for="inputText">피막두께</label>
+							{% if lot %}
+								<input id="surf" type="text" name="surf_layer" class="form-control" placeholder="피막두께" value="{{lot.surf_layer}}">	
+							{% else %}
+								<input id="surf" type="text" name="surf_layer" class="form-control" placeholder="피막두께" value="±">	
+							{% endif %}
+							
+						</div>
+				</div>
+				<div class="form-row">
+						<div class="form-group col-md-6">
+							<label for="inputText">조도/RA</label>
+							{% if lot %}
+								<input id="ra" type="text" name="RA" class="form-control" placeholder="RA" value="{{lot.RA}}">	
+							{% else %}
+								<input id="ra" type="text" name="RA" class="form-control" placeholder="RA" value="±">	
+							{% endif %}
+							
+						</div>
+						<div class="form-group col-md-6">
+							<label for="inputText">납기일자</label>
+							{% if lot %}
+								<input id="tdate" type="date" name="target_date" class="form-control" placeholder="납기일자" value="{{lot.target_date.strftime('%Y-%m-%d')}}">	
+							{% else %}
+								<input id="tdate" type="date" name="target_date" class="form-control" placeholder="납기일자">
+							{% endif %}
+						</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group col-md-3">
+						{% if lot %}
+							<button id="btn" class="btn btn-lg btn-primary btn-block" onclick="up_lotinfo(event);" >수정</button>
+						{% else %}
+							<button id="btn" class="btn btn-lg btn-primary btn-block" onclick="create_lot(event);">등록</button>
+						{% endif %}
+					</div>
+					<div id="btns_2add"></div>
+					{% if lot %}
+						<div class="form-group col-md-3">
+							<button id="btn_reiss" class="btn btn-lg btn-secondary btn-block" >재작업Lot발행</button>
+						</div>
+						<div class="form-group col-md-3">
+							<button id="btn_split_show" class="btn btn-lg btn-success btn-block"  >Lot분할</button>
+						</div>
+					{% endif %}
+
+					<div id="modal1" class="ui basic modal">
+						<div  class="ui icon header">
+									LOT 분할
+						</div>
+						<div class="content">
+							<a onclick="closeModal1();"><i class="material-icons" style="font-size:36px;color:gray;position:absolute;top: 50px;right:3px;z-index:100;">highlight_off</i></a>
+							<h4 class="ui header">Lot #1</h4>
+							<div class="row">
+								<div class="col-md-5">
+
+										<select id="lot_sp_code1" class="form-control">
+											<option value="nm">마스킹 無(NM)</option>
+											<option value="ma">마스킹 有(MA)</option>
+											<option value="sp1">분할1(SP1)</option>
+										</select>
+										<div class="ui hidden divider"></div>
+									{% if lot %}
+	
+											<select id="lot_select1" name="lot_sn1" multiple class="form-control" placeholder="제조번호">
+												{% set sn=lot.prod_serial.split(',') %}
+												{% for n in sn %}
+													<option>{{n}}</option>
+												{% endfor %}
+											</select>
+			
+									{% endif %}
+								</div>
+								<div class="col-md-2">
+										<i id="btn-right" class="material-icons">keyboard_arrow_right</i>
+										<div class="ui hidden divider"></div>
+										<i id="btn-left" class="material-icons">keyboard_arrow_left</i>
+								</div>
+								<div class="col-md-5">
+								
+											<select id="lot_sp_code2" class="form-control">
+												<option value="nm">마스킹 無(NM)</option>
+												<option value="ma">마스킹 有(MA)</option>
+												<option value="sp2">분할2(SP2)</option>
+											</select>
+											<div class="ui hidden divider"></div>
+			
+										<select id="lot_select2" name="lot_sn2" multiple class="form-control" placeholder="제조번호"></select>
+							
+								</div>
+							</div>
+							<div class="ui hidden divider"></div>
+							<button id="btn_split" class="btn btn-lg btn-success btn-block"  >Lot분할</button>
+	
+								
+							
+						</div>
+					</div>
+
+					
+
+
+				</div>
+				
+			</form>
+
+		</div>
+	</div>
+
+	<hr>
+
+	<div class="card">
+		{% if lot %}
+			<h4 class="card-header"><b style="color:lightseagreen;">LOT 공정등록</b></h4>
+		{% else %}
+			<h4 class="card-header"><b style="color:lightseagreen;">LOT 공정수정</b></h4>
+		{% endif %}
+		<div class="card-body">
+			{% if lot %}
+				{% from "lotprocess.html" import render_lotprocess %}
+				{{render_lotprocess(lot.lot_id,stages,lotprocs,stage_procs,com_list)}}
+			{% else %}
+				{% from "lotprocess.html" import render_lotprocess %}
+				{{render_lotprocess('',stages,lotprocs,stage_procs,com_list)}}
+			{% endif %}
+		
+		</div>
+
+
+	</div>
+</div>
+{% endblock %}

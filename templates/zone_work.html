@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EINS MONITORING SYSTEM</title>
+<script src="{{url_for('static',filename='jquery.min.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='init.js')}}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css')}}" >
+<script type="text/javascript" src="{{ url_for('static', filename='masonry.pkgd.min.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='app.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='jquery.colorbox.js')}}"></script>
+
+<style>
+
+    img {
+        max-width: 100%
+    }
+    input, textarea {
+        max-width:100%
+    }
+    .header {
+        background: url(header.png) 50% no-repeat;
+        background-size: contain
+    }
+    .header {
+        font-family: Arial
+    }
+    .wf-opensans-n4-active .header {
+        font-family: 'Open Sans'
+    }
+    /*Default styles*/
+    .related-products li {
+        float: left;
+        width: 50%;
+    }
+
+
+
+    div.msg_bbl {
+        background-color: #EEECEC;
+        padding: 5px 10px;
+        border-radius: 10px;
+        color: #5F5E5E;
+        margin-bottom: 5px;
+      }
+
+
+    .grid-item {
+        float: left;
+        width: 120px;
+        height: 150px;
+        background:rgb(221, 248, 252);
+        text-align:center;
+        border: 1px solid white;
+        border-radius: 8px;
+        overflow:hidden;
+        margin:auto;
+    }
+    .grid-photo {
+        float: left;
+        width: 120px;
+        height: 180px;
+        background:white;
+        text-align:center;
+        border: 0px;
+        border-radius: 3px;
+        overflow:hidden;
+        margin:auto;
+    }
+
+    .grid-item--new {
+        float: left;
+        width: 105px;
+        height: 30px;
+        background: rgb(221, 248, 252);
+        border: 1px solid white;
+        border-radius: 8px;
+        text-align:center;
+        vertical-align:text-center;
+        overflow: hidden;
+        margin:0%;
+        line-height:90%;
+    }
+
+    .grid-item:hover {
+        background: rgb(237, 209, 245);
+        border-color: hsla(0, 0%, 0%, 0.1);
+        cursor: pointer;
+      }
+    .grid-item--width2 { width: 320px; }
+    .grid-item--width3 { width: 480px; }
+    .grid-item--width4 { width: 640px; }
+    
+    .grid-item--height2 { height: 200px; }
+    .grid-item--height3 { height: 260px; }
+    .grid-item--height4 { height: 360px; }
+    
+    
+    .grid-item--gigante {
+        float:left;
+        width: 100%;
+        
+        background: white;
+        border: 1px solid rgb(236, 236, 236);
+        border-radius: 8px;
+        margin:0px;
+    }
+    .grid-item-new{
+        border: 1px solid hsla(0, 93%, 52%, 0.1);
+    }        
+      
+</style>
+<link rel="stylesheet" href="{{url_for ('static', filename='semantic.min.css')}}" >
+<script src="{{url_for ('static', filename='semantic.min.js')}}"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script>
+
+	function closeModal(){
+		$('.ui.basic.modal')
+		.modal('hide')
+	  ;
+	}
+	
+</script>
+</head>
+
+<body>
+
+<div class="container-fluid">
+
+        <div class="card">
+            <h5 class="card-header" style="color:darkorange;">{{zone}}&nbsp;작업중</h5>
+            <div class="card-body">
+                <div class="grid">    
+                {% for items in dt_work %}
+                    <form id="frm{{items.name|replace(' ','_')}}" action="{{url_for('prod')}}" method="POST">
+                        {% if items.name=='기타 업체' %}
+                            <a href="JavaScript:void(0);" onclick="parentNode.submit();">
+                        {% else %}
+                            <a id="lnk_{{items.name|replace(' ','_')}}" href="JavaScript:void(0);">
+                        {% endif %}
+                           
+                            <div class="grid-item">
+                            
+                                    <p style="color:midnightblue;"><h6>{{items.name}}</h6></p>
+                                    <span class="badge badge-pill badge-light">{{items.count}}</span><br>
+                                    {% for item in items.lot_id %}
+                                        <input type="hidden" name="lot_list" value="{{item}}">
+                                        <small><h7>{{item}}</h7></small><br>
+                                    {% endfor %}
+                            
+                            </div>
+                        </a>
+                        <input type="hidden" name="prod" value="{{items.name}}">
+                        <input type="hidden" name="dt_work" value="{{dt_work}}">
+                        <input type="hidden" name="zone_id" value="{{zone_id}}">
+                        <input type="hidden" name="zone" value="{{zone}}">
+                    </form>
+                    
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+    <div class="ui basic modal">
+        <div class="ui icon header">
+                    세부작업별 LOT 리스트
+        </div>
+        <div class="content">
+            <a onclick="closeModal();"><i class="material-icons" style="font-size:36px;color:gray;position:absolute;top: 50px;right:3px;z-index:100;">highlight_off</i></a>
+            <div class="prod_page"><div class="prod_lot"></div></div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+<script>
+        $(document).ready(function() {
+    
+            {% for items in dt_work %}
+                $('#lnk_{{items.name|replace(" ","_")}}').click(function(e) {
+                    e.preventDefault();
+                    
+                    $('div.prod_lot').remove();
+                    $('div.prod_page').append('<div class="prod_lot"></div>');
+                    var form_data = new FormData($('#frm{{items.name|replace(" ","_")}}')[0]);
+                    $.ajax({
+                        type: 'POST',
+                        url: '/prod',
+                        data: form_data,
+                        contentType: false,
+                        cache: false,
+                        processData: false,
+                        async: false,
+                        success: function(data) {
+                            console.log(data.dt);
+                            
+                            var dt=data.dt;
+                            var prod=data.prod;
+                            var num_prod=parseInt(Math.random()*10000);
+ 
+                            $('div.prod_lot').html(
+                                    '<div id="prod_grid" class="grid"><div id="nm_'+num_prod+'"></div></div>'
+                            );
+                            for (i in dt){
+                                if (dt[i].lot_id.length>0){
+                                    console.log(dt[i].work);
+                                    $('#nm_'+num_prod).append(
+                                       '<h6 style="color:ivory;"><small><b>'+dt[i].work+'</b></small></h6>'+
+                                                '<div id="z_'+dt[i].work+'"></div>'
+                                        );
+                                    var lot_id=dt[i].lot_id;
+                                    for (j in lot_id){
+                                        $('#z_'+dt[i].work).append(
+                                                '<a href="/lot_info?lot_id='+lot_id[j]+'" class="btn btn-outline-secondary btn-sm" role="button">'+
+                                                       
+                                                                '<p class="h6">'+lot_id[j]+'</p>'+
+                                                   
+                                                '</a>'
+                                        );
+                                    }   
+                                }
+                            }
+                            $('.ui.basic.modal').modal('show'); 
+                        },
+                    });     
+                });
+            {% endfor %}
+    
+    
+    
+            $("#chart_work_url").attr("href", chart_url + "/chart_work");
+            $("#chart_lot_url").attr("href", chart_url + "/chart_lot");
+    
+    
+        });
+                
+    </script>
+
+</body>
+</html>

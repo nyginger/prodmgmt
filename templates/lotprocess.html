@@ -1,0 +1,188 @@
+{% macro render_lotprocess(lot_id,new_procs,lotprocs,stage_procs,com_list) %}
+{% block head %}
+<!--<link rel="stylesheet" href="{{url_for ('static', filename='myModal2.css')}}" > -->
+<link rel="stylesheet" href="{{url_for ('static', filename='semantic.min.css')}}" >
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  body {
+    padding-top: 50px;
+    min-height: 1000px;
+  }
+	.grid-item {
+		float: left;
+		width: 300px;
+		height: 30px;
+		border: 0px;
+		}
+	.grid-sizer{
+		width:90%
+	}
+	.grid-controller{
+		width:10%
+
+	}
+</style>
+<script src="{{url_for ('static', filename='lot_proc.js')}}"></script>
+<script src="{{url_for ('static', filename='semantic.min.js')}}"></script>
+<script>
+	function openModal(){
+		$('#modal')
+		.modal('show')
+	  ;
+	}
+	function closeModal(){
+		$('#modal')
+		.modal('hide')
+	  ;
+	}
+	
+</script>
+
+{% endblock %}
+		
+	
+	<div style="padding-top: 30px;"></div>
+	<div class="card">		
+		<h5 class="card-header">공정설정</h5>
+		
+		<div class="card-body">
+			<form action="/proc_update" method="POST" class="form-inline">		
+				<input type="hidden" name="lot_id" size="15" class="form-control" value={{lot_id}} readonly>
+				<div class="row" style="float:top; margin:0; width:100%;">
+					<div class="col-lg-6 col-12">
+						<div class="row" style="margin-left:0px;">
+							<p class="card-text"><b style="color:slateblue;"><h5>현 공정</h5></b></p> 
+						</div>
+						<div class="row" style="float:left; margin:0; width:100%;">
+							<div class="grid-sizer">
+								<div class="form-group">
+								{% if lotprocs %}
+									<select class="form-control" name="selectfrom" id="select-from" multiple size="15" style="width: 95%;height:100%;">
+										{% for i in range(0,lotprocs|length-1) %}
+											{% if lotprocs[i] %}
+												<option value={{lotprocs[i]}}>{{lotprocs[i]}}</option>
+											{% endif %}
+										{% endfor %}
+									</select>
+								{% else %}
+									<select class="form-control"  name="selectfrom" id="select-from" multiple size="15" style="width: 95%;height:100%;">
+										{% for procs in new_procs|sort(attribute='id') %}
+											<option value="proc">{{procs.work}}</option>
+										{% endfor %}
+									</select>
+									<br>
+								{% endif %}
+								</div>
+								<div class="ui hidden divider"></div>
+								<!--<a href="{{url_for('proc_reset', lot_id=lot_id)}}" class="btn btn-secondary btn-lg btn-block" role="button">공정RESET</a> -->
+								<div class="row">
+									<div class="col-lg-6 col-12">
+											<a href="JavaScript:void(0);" class="btn btn-outline-secondary btn-block" role="button" onclick="selectfromAll(event);">모두선택</a>
+									</div>
+									<div class="col-lg-6 col-12">
+											<a href="JavaScript:void(0);" class="btn btn-outline-secondary btn-block" role="button" id="btn-reset">공정RESET</a>
+									</div>
+								</div>
+						
+							</div>
+							<div class="grid-controller">
+								<div class="row">
+									<a href="JavaScript:void(0);" id="btn-add"><i class="material-icons">keyboard_arrow_right</i></a>
+								</div>
+								<div class="row">
+									<a href="JavaScript:void(0);" id="btn-remove"><i class="material-icons">keyboard_arrow_leftt</i></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="padding-top: 40px;"></div>
+					<div class="col-lg-6 col-12">
+						<div class="row" style="float:left;margin-left:0px;">
+							<p class="card-text"><b style="color:slateblue;"><h5>수정 공정</h5></b></p> 
+						</div>
+						<div class="row" style="float:left; margin:0; width:95%;">
+							<div class="grid-sizer">
+
+									<div class="form-group">
+										<select class="form-control"  name="selectto" id="select-to" multiple size="15" style="width: 95%;"></select>
+		
+									</div>
+									<div class="ui hidden divider"></div>
+									<div class="row">
+											<input class="btn btn-outline-primary btn-block" type=submit value="저장" onclick="selectAll();">
+									</div>
+									
+									
+							</div>
+
+							<div class="grid-controller">
+								<div class="row">
+									<a href="JavaScript:void(0);" id="btn-up"><i class="material-icons">keyboard_arrow_up</i></a>
+								</div>				
+								<div class="row">
+									<a href="JavaScript:void(0);" id="btn-down"><i class="material-icons">keyboard_arrow_down</i></a>
+								</div>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+				
+				<div style="padding-top: 20px;"></div>
+
+			</form>
+			<hr>
+			<div class="form-group col-md-6">
+
+				<label for="inputText">저장된 공정 목록 불러오기</label>
+				<select class="form-control"  name="product" id="sel_product" style="max-width:150px;" onchange="procLoad1();" >
+						<option>공정선택</option>
+						{% for proc in stage_procs|sort(attribute='company') %}	
+							<option value="{{proc.id}}">{{proc.company}} | {{proc.product}}</option>
+						{% endfor %}
+				</select>
+			</div>
+			<div class="form-group col-md-6">
+	
+
+
+			<!--<a  href="#openModal" >공정 목록 수정</a>
+				<div id="openModal" class="modalDialog">
+					<div>
+							<a href="#close" title="Close" class="close">X</a>
+
+							{% from "proc_list.html" import render_proclist %}
+							{{render_proclist(new_procs,stage_procs,com_list)}}
+
+
+					</div>
+				</div> -->
+
+				<a  href="#" onclick="openModal();" >공정 목록 수정</a>
+				
+				<div id="modal" class="ui basic modal">
+					<div class="ui icon header">
+							공정 목록 수정
+					</div>
+					<div class="content">
+							<!--<button style="position:absolute;top: 55px;right:5px;border-radius: 35px;z-index:100;" class="circular ui teal icon button" onclick="closeModal();">x</button>-->
+							<a onclick="closeModal();"><i class="material-icons" style="font-size:36px;color:gray;position:absolute;top: 50px;right:3px;z-index:100;">highlight_off</i></a>
+								{% from "proc_list.html" import render_proclist %}
+								{{render_proclist(new_procs,stage_procs,com_list)}}
+						
+							
+						
+					</div>
+				</div>
+
+
+
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+{% endmacro %}

@@ -1,0 +1,59 @@
+{% macro render_pagination(paginated,query,zone_id,idx) %}
+{% block head %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% endblock %}
+<meta charset="UTF-8"> 
+<nav style="background-color:rgba(255,255,255,0);z-index:1;">
+    <ul class="pagination">
+    {% if query %}
+            <li class="page-item"><a href="{{ url_for('search', page=1, query=query, idx=idx) }}"><i class="material-icons" style="font-size:15px">skip_previous</i></a></li>
+            {% if paginated.has_prev %}
+                <li class="page-item"><a class="page-link"  href="{{ url_for('search', page=paginated.prev_num, query=query, idx=idx) }}">이전</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">&laquo; 이전</a></li>
+            {% endif %}
+            <li class="page-item active"><a class="page-link" href="#">{{ paginated.page }}</a></li>
+            {% if paginated.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('search', page=paginated.next_num, query=query, idx=idx) }}">다음</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#}">다음 &raquo;</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('search', page=paginated.pages, query=query, idx=idx) }}"><i class="material-icons" style="font-size:15px">skip_next</i></a></li>
+
+    {% elif zone_id!='' or zone_id or zone_id==0 %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('work', zone_id=zone_id,page=1) }}"><i class="material-icons" style="font-size:15px">skip_previous</i></a></li>
+            {% if paginated.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('work', zone_id=zone_id, page=paginated.prev_num) }}">이전</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">&laquo; 이전</a></li>
+            {% endif %}
+            <li class="page-item active"><a class="page-link" href="#">{{ paginated.page }}</a></li>
+            {% if paginated.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('work', zone_id=zone_id, page=paginated.next_num) }}">다음</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#}">다음 &raquo;</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('work', zone_id=zone_id, page=paginated.pages) }}"><i class="material-icons" style="font-size:15px">skip_next</i></a></li>
+    {% else %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('msg', page=1) }}"><i class="material-icons" style="font-size:15px">skip_previous</i></a></li>
+            {% if paginated.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('msg', page=paginated.prev_num) }}">이전</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">&laquo; 이전</a></li>
+            {% endif %}
+            <li class="page-item active"><a class="page-link" href="#">{{ paginated.page }}</a></li>
+            {% if paginated.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('msg', page=paginated.next_num) }}">다음</a></li>
+            {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#}">다음 &raquo;</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('msg', page=paginated.pages) }}"><i class="material-icons" style="font-size:15px">skip_next</i></a></li>
+
+    {% endif %}
+        
+    </ul> 
+</nav>
+    <p class="text-right">(현재 {{paginated.page}} / {{paginated.pages}}페이지)</p>
+
+
+{% endmacro %}

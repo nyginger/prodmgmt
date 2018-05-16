@@ -1,0 +1,56 @@
+{% extends "template.html" %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='cover.css')}}" >
+
+<style>
+	body {
+		color:black;
+	}
+	#wrapper{
+		padding-top: 50px;
+		width:600px;
+		margin:0 auto;
+	}
+
+</style>
+{% endblock %}
+{% block body %}
+
+	<div id="wrapper">
+		<div class="card" style="width: 20rem;">
+			<div class="card-header">QR Code 생성</div>
+				<div class="card-body">
+					<div class="card-text">
+						<form method="GET" action="{{url_for('qrcode')}}" enctype="multipart/form-data">
+							<label for="photo">텍스트 입력하기</label>
+							<input type="text" name="q"  class="form-control">
+							<button type="submit" class="btn btn-primary">QR코드 생성</button>
+						</form>
+					</div>
+				</div>
+			</div>
+
+
+			<hr>
+		<div class="card" style="width: 20rem;">
+				<div class="card-header">QR Code 해석</div>
+				<div class="card-body">
+					{% if qrtext %}
+						<div class="alert alert-success" role="alert">
+							{% for txt in qrtext %}
+								<p>{{ txt }}</p>
+							{% endfor %}
+						</div>
+					{% endif %}
+				<div class="card-text">
+					<form method="POST" action="{{url_for('readqr')}}" enctype="multipart/form-data">
+						<label for="photo">QR코드 사진선택</label>
+						<input type="file" name="file"  accept="image/*" multiple>
+						<button type="submit" class="btn btn-primary">업로드</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

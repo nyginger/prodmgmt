@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="en">
+    <head>
+          <meta charset="utf-8" />
+          <!--<meta name="viewport" content="width=device-width, initial-scale=1"> -->
+          <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+          <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+          <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+          <title>Chart.js </title>      <!-- import plugin script -->   
+          <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js'></script>
+   </head>
+   <body>
+       
+
+            <div data-role="main" class="ui-content">
+                <form method="post" action="/action_page_post.php">
+                    <label for="year">Year:</label>
+                    <input type="range" name="year" id="year" value="2017" min="2015" max="2020" onchange="updateChart();">
+                    <label for="month">Month:</label>
+                    <input type="range" name="month" id="month" value="1" min="1" max="12" onchange="updateChart();">
+                    <select id="product" onchange="updateChart();">
+                            <option value="전체">전체</option>
+                            <option value="DIFFUSER" selected>DIFFUSER</option>
+                            <option value="SHADOW_FRAME">SHADOW FRAME</option>
+                            <option value="LINER">LINER</option>
+                    </select>
+
+                    <select id="company" onchange="updateChart();">
+                        <option value="전체">전체</option>
+                        <option value="SDC" selected>SDC</option>
+                        <option value="LG">LG</option>
+                        <option value="IPS">IPS</option>
+                    </select>
+                </form>
+            </div>
+
+
+        <div class="chartarea"><canvas id="chart" width="100" height="100"></canvas></div>
+        <script>
+                
+           // get bar chart canvas
+           var mychart = $("#chart");
+           var getData=$.get('/chrtdata_lotcnt?year=2017&month=1&product=diffuser&company=sdc');
+            getData.done(function(results){
+                    var chrtlabels= results.labels;
+                    var chrtdata=results.values;
+                    var data =  {
+                            labels : chrtlabels,
+                            datasets : [{
+                                    label: '제품',
+                                    backgroundColor: "rgba(255,99,132,0.2)",
+                                    borderColor: "rgba(255,99,132)",
+                                    data : chrtdata
+                            }]
+                        };
+                     var options = {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero:true
+                                    }
+                                }]
+                            }
+                        };
+                    var chart = new Chart(mychart,{
+                        type: 'horizontalBar',
+                        data: data,
+                        options: options
+                    });
+            });
+
+            function updateChart(){
+                $('#chart').remove();
+                $('div.chartarea').append('<canvas id="chart" width="400" height="300"></canvas>');
+                var newchart  = $("#chart");
+                var year=$('#year').val();
+                var month=$('#month').val();
+                var product=$('#product').val();
+                var company=$('#company').val();
+                var url='/chrtdata_lotcnt?year=' + year + '&month=' + month + '&product=' + product + '&company=' + company
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                        var chrtlabels= results.labels;
+                        var chrtdata=results.values;
+                        var data =  {
+                            labels : chrtlabels,
+                            datasets : [{
+                                    label: '제품',
+                                    backgroundColor: "rgba(255,99,132,0.2)",
+                                    borderColor: "rgba(255,99,132)",
+                                    data : chrtdata
+                            }]
+                        };
+                        var options = {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero:true
+                                        }
+                                    }]
+                                }
+                            };
+                        var chart = new Chart(newchart,{
+                            type: 'horizontalBar',
+                            data: data,
+                            options: options
+                        });
+                });
+            }
+
+        </script>
+    </body>
+</html>

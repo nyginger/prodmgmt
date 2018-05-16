@@ -1,0 +1,253 @@
+<!DOCTYPE html><html lang="en">
+    <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css')}}" >
+          <link rel="stylesheet" href="{{ url_for('static', filename='cover.css')}}" > 
+          <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+          <script src="static/jquery.min.js"></script>
+          <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+          <title>공정별 차트</title>      <!-- import plugin script -->   
+          <script src='static/Chart.min.js'></script>
+          <script src="static/moment.min.js"></script>
+   </head>
+   <body>
+       
+
+            <div data-role="main" class="ui-content">
+
+                
+                <nav class="breadcrumb">
+                    {% if ctype | int ==1 %}
+                        <p style="color:royalblue;"><h3><b><div class="title"><div id='maintitle'>일자별 평균 공정시간(분)</div></div></b></h3></p>
+                            <span class="breadcrumb-item active">일자별 평균공정시간</span>
+                            <a class="breadcrumb-item" href="#" onclick="load2();">Lot별 공정시간</a>
+                            <a class="breadcrumb-item" href="#" onclick="load3();">제품별/업체별 평균공정시간</a>
+                    {% elif ctype|int ==2 %}
+                        <p style="color:royalblue;"><h3><b><div class="title"><div id='maintitle'>LOT별 총 공정시간(분)</div></div></b></h3></p>
+                            <a class="breadcrumb-item" href="#" onclick="load1();">일자별 평균공정시간</a>
+                            <span class="breadcrumb-item active">Lot별 공정시간</span>
+                            <a class="breadcrumb-item" href="#" onclick="load3();">제품별/업체별 평균공정시간</a>
+                    {% else %}
+                        {% if zone %}
+                            {% for z in zone_list %}
+                                {% if z[0]|int ==zone|int %}
+                                    <p style="color:royalblue;"><h3><b><div class="title"><div id='maintitle'>{{z[1]}}공정 평균시간(분)</div></div></b></h3></p>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p style="color:royalblue;"><h3><b><div class="title"><div id='maintitle'>공정별 평균시간(분)</div></div></b></h3></p>  
+                        {% endif %}
+                            <a class="breadcrumb-item" href="#" onclick="load1();">일자별 평균공정시간</a>
+                            <a class="breadcrumb-item" href="#" onclick="load2();">Lot별 공정시간</a>
+                            <span class="breadcrumb-item active">제품별/업체별 평균공정시간</span>
+                    {% endif %}
+                </nav>
+                <form method="post" action="#">
+                    <input type="hidden" id="ctype" name="ctype" value="{{ctype}}" >
+
+                    {% if ctype | int==1 %}
+                        
+                        <label>날짜선택:</label>
+                        <input id="date" type="date" onchange="updateChart1();" >
+                    {% elif ctype|int==2 %}
+                        <input id="lot_id" type="text" placeholder="LOT ID" onchange="updateChart1();" >
+
+                    {% else %}
+                        <select id="company" onchange="updateChart3();">
+                            <option value="전체" >전체</option>
+                            {% for c in  com_list %}
+                                {% if c[0]|int ==com | int  %}
+                                    <option value="{{c[0]}}" selected>{{c[1]}}</option>
+                                {% else %}
+                                    <option value="{{c[0]}}">{{c[1]}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <select id="zone" onchange="updateChart3();">
+                            {% for z in zone_list %}
+                                {% if z[0]|int ==zone | int %}
+                                    <option value="{{z[0]}}" selected>{{z[1]}}</option>
+                                {% else %}
+                                    <option value="{{z[0]}}">{{z[1]}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+
+                        <select id="product" onchange="updateChart3();">
+                            <option value="전체" >전체</option>
+                            {% for p in prod_list %}
+                                {% if p[0]|int ==prod | int %}
+                                    <option value="{{p[0]}}" selected>{{p[1]}}</option>
+                                {% else %}
+                                    <option value="{{p[0]}}">{{p[1]}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                    {% endif %}
+                </form>
+   
+            <canvas id="chart" width="100" height="70"></canvas>
+        </div>
+        <script>
+          // get bar chart canvas
+           var mychart = $("#chart");
+           var barchart;
+           var hbarchart;
+           {% if ctype | int==1 %}
+                var curdate=moment().format('YYYY-MM-DD');
+                var geturl= '/chrtdata_work?ctype=1&date=' + curdate ;
+
+            {% elif ctype|int==2 %}
+                {% if lot_id %}
+                    var geturl= '/chrtdata_work?ctype=2&lot_id={{lot_id}}';
+                {% else %}
+                    var lot_id=$('#lot_id').val();
+                    var geturl='/chrtdata_work?ctype=2&lot_id=' + lot_id ;
+                {% endif %}
+            {% else %}
+                {% if zone %}
+                    var geturl= '/chrtdata_work?ctype=3&zone={{zone}}&product=null&company=null';
+                {% else %}
+                    var geturl= '/chrtdata_work?ctype=3&zone=null&product=null&company=11';
+                {% endif %}
+            {% endif %}
+      
+           var getData=$.get(geturl);
+           getData.done(function(results){
+                    var chrtlabels= results.labels;
+                    var chrtdata=results.values;
+                    {% if ctype|int <=2 %}
+                        var data =  {
+                                labels : chrtlabels,
+                                datasets : [{
+                                        data : chrtdata,
+                                        backgroundColor: results.colors
+                                }]
+                            };
+                    {% else %}
+                        var data =  {
+                            labels : chrtlabels,
+                            datasets : [{
+                                    data : chrtdata
+                            }]
+                        };
+                    {% endif %}                           
+                    var options = {
+                        };
+
+                    {% if ctype | int <=2 %}
+                        barchart = new Chart(mychart,{
+                            type: 'bar',
+                            data: data,
+                            options: options
+                        });
+
+                    {% else %}
+                        hbarchart = new Chart(mychart,{
+                            type: 'horizontalBar',
+                            data: data,
+                            options: options
+                        });
+                    {% endif %}
+                    
+                    
+                    Chart.plugins.register({
+                        afterDatasetsDraw: function(chart, easing) {
+                            // To only draw at the end of animation, check for easing === 1
+                            var ctx = chart.ctx;
+                            chart.data.datasets.forEach(function (dataset, i) {
+                                var meta = chart.getDatasetMeta(i);
+                                if (!meta.hidden) {
+                                    meta.data.forEach(function(element, index) {
+                                        // Draw the text in black, with the specified font
+                                        ctx.fillStyle = 'rgb(0, 0, 0)';
+                                        var fontSize = 13;
+                                        var fontStyle = 'normal';
+                                        var fontFamily = 'Helvetica Neue';
+                                        ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+                                        // Just naively convert to string for now
+                                        var dataString = dataset.data[index].toString();
+                                        // Make sure alignment settings are correct
+                                        {% if ctype|int <= 2 %}
+                                            ctx.textAlign = 'center';
+                                            ctx.textBaseline = 'middle';
+                                        {% else %}
+                                            ctx.textAlign = 'right';
+                                            ctx.textBaseline = 'right';
+                                        {% endif %}
+                                        var padding = 2;
+                                        var position = element.tooltipPosition();
+                                        ctx.fillText(dataString, position.x, position.y - (fontSize / 2) );
+                                    });
+                                }
+                            });
+                        }
+                    });
+            });
+
+
+            function updateChart1(){
+                $('#maintitle').remove();
+                {% if ctype|int==1 %}
+                    var caldate= moment($('#date').val());
+                    var setdate= caldate.format('YYYY-MM-DD');
+                    $('div.title').append('<div id="maintitle">'+ setdate + '일 총 공정시간(분)</div>');
+                    var url = '/chrtdata_work?ctype=1&date=' + setdate ;
+                {% else %}
+                    var lot_id = $('#lot_id').val();
+                    $('div.title').append('<div id="maintitle">' + lot_id + 'LOT 총 공정시간(분)</div>');
+                    var url = '/chrtdata_work?ctype=2&lot_id=' + lot_id ;
+                {% endif %}
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                        var chrtlabels= results.labels;
+                        var chrtdata=results.values;
+                        var chrtcolors=results.colors;
+                        barchart.data.datasets[0].backgroundColor=chrtcolors;
+                        barchart.data.datasets[0].data=chrtdata;
+                        barchart.data.labels=chrtlabels;
+                        barchart.update();
+                });
+            }
+
+
+            function updateChart3(){
+                $('#maintitle').remove();
+                var z=$('#zone').val();
+                var z_text=$("#zone option:selected").text();
+                var product=$('#product').val();
+                var product_text=$('#product option:selected').text();
+                var company=$('#company').val();
+                if (z>=1) { 
+                    $('div.title').append('<div id="maintitle">' + z_text + '공정 ' + product_text + ' 제품 평균시간(분)</div>');
+                } else {
+                    $('div.title').append('<div id="maintitle">제품별 공정별 평균시간(분)</div>');
+                }
+                var url = '/chrtdata_work?ctype=3&product=' + product + '&company=' + company +'&zone=' + z;
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                        var chrtlabels= results.labels;
+                        var chrtdata=results.values;
+                        hbarchart.data.datasets[0].data=chrtdata;
+                        hbarchart.data.labels=chrtlabels;
+                        hbarchart.update();
+                });
+            }
+
+
+
+            function load1(){
+                window.location.replace("/chart_work?ctype=1&date=2017-02-01");
+            }
+            function load2(){
+                window.location.replace("/chart_work?ctype=2");
+            }
+            function load3(){
+                window.location.replace("/chart_work?ctype=3");
+            }
+        </script>
+    </body>
+</html>

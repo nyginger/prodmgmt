@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="en">
+    <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css')}}" >
+          <link rel="stylesheet" href="{{ url_for('static', filename='cover.css')}}" > 
+          <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+          <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+          <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+          <title>공정별 차트</title>      <!-- import plugin script -->   
+          <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js'></script>
+          <script src="static/moment.min.js"></script>
+   </head>
+   <body>
+       
+
+            <div data-role="main" class="ui-content">
+                <form method="post" action="#">
+                    <p style="color:royalblue;"><h3><b><div class="title"><div id='maintitle'>공정별 평균시간(분)</div></div></b></h3></p>
+                    <label>날짜선택:</label>
+                    <input id="date" type="date" onchange="updateDate();" >
+                    <input id="lot_id" type="text" onchange="updateLot();" value="{{lot_id}}" placeholder="LOT ID">
+                    <select id="zone" onchange="updateChart();">
+                        {% for z in zone_list %}
+                            {% if z[1]==zone | int %}
+                                <option value="{{z[1]}}" selected>{{z[0]}}</option>
+                            {% else %}
+                                <option value="{{z[1]}}">{{z[0]}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <select id="product" onchange="updateChart();">
+                            <option value="전체" selected>전체</option>
+                            {% for z in zone_list %}
+                            {% if z[1]==zone | int %}
+                                <option value="{{z[1]}}" selected>{{z[0]}}</option>
+                            {% else %}
+                                <option value="{{z[1]}}">{{z[0]}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+
+                    <select id="company" onchange="updateChart();">
+                        <option value="전체" selected>전체</option>
+                        {% for c in  com_list %}
+                            {% if c[0]==com | int  %}
+                                <option value="{{c[0]}}" selected>{{c[1]}}</option>
+                            {% else %}
+                                <option value="{{c[0]}}">{{c[1]}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </form>
+   
+            <div class="chartarea"><canvas id="chart" width="100" height="100"></canvas></div>
+        </div>
+        <script>
+          // get bar chart canvas
+           var mychart = $("#chart");
+           var curtime = moment().format('YYYY-MM-DD');
+           var geturl= '/chrtdata_work?date=2017-02-01'
+           {% if lot_id %}
+                var geturl= '/chrtdata_work?lot_id=' + {{lot_id}}
+           {% endif %}
+           {% if zone %}
+                var geturl= '/chrtdata_work?zone=' + {{zone}}
+            {% endif %}
+      
+           var getData=$.get(geturl);
+           getData.done(function(results){
+                    var chrtlabels= results.labels;
+                    var chrtdata=results.values;
+                    var data =  {
+                            labels : chrtlabels,
+                            datasets : [{
+                                    data : chrtdata
+                            }]
+                        };
+                     var options = {
+
+                        };
+
+                    var chart = new Chart(mychart,{
+                        type: 'doughnut',
+                        data: data,
+                        options: options
+                    });
+
+            });
+
+            function updateChart(){
+                $('#chart').remove();
+                $('#maintitle').remove();
+                $('div.title').append('<div id="maintitle">제품별 공정별 평균시간(분)</div>');
+                $('div.chartarea').append('<canvas id="chart" width="100" height="100"></canvas>');
+                var mychart  = $("#chart");
+                document.getElementById('date').value='';
+                document.getElementById('lot_id').value='';
+                var product=$('#product').val();
+                var company=$('#company').val();
+                var zone=$('#zone').val();
+                url = '/chrtdata_work?product=' + product + '&company=' + company + '&zone=' + zone
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                        var chrtlabels= results.labels;
+                        var chrtdata=results.values;
+                        var data =  {
+                            labels : chrtlabels,
+                            datasets : [{
+                                    label: '공정별 평균시간(분)',
+                                    backgroundColor: "rgba(255,99,132,0.2)",
+                                    borderColor: "rgba(255,99,132)",
+                                    data : chrtdata
+                            }]
+                        };
+                        var options = {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero:true
+                                        }
+                                    }]
+                                },
+                                title: {
+                                    display: true,
+                                    text: company + ' 제품별 공정별 평균시간(분)'
+                                }
+
+                            };
+                        var chart = new Chart(mychart,{
+                            type: 'horizontalBar',
+                            data: data,
+                            options: options
+                        });
+                });
+            }
+
+            function updateDate(){
+                $('#chart').remove();
+                $('#maintitle').remove();
+                $('div.chartarea').append('<canvas id="chart" width="100" height="100"></canvas>');
+                var mychart  = $("#chart");
+                document.getElementById('product').value='';
+                document.getElementById('company').value='';
+                document.getElementById('lot_id').value='';
+                var caldate= moment($('#date').val());
+                var setdate= caldate.format('YYYY-MM-DD');
+                $('div.title').append('<div id="maintitle">'+ setdate + '일자 총 공정시간(분)</div>');
+                url = '/chrtdata_work?date=' + setdate 
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                        var chrtlabels= results.labels;
+                        var chrtdata=results.values;
+                        var data =  {
+                            labels : chrtlabels,
+                            datasets : [{
+                                    data : chrtdata
+                            }]
+                        };
+                        var options = {
+
+                            };
+                        var chart = new Chart(mychart,{
+                            type: 'doughnut',
+                            data: data,
+                            options: options
+                        });
+                });
+            }
+
+            function updateLot(){
+                $('#chart').remove();
+                $('#maintitle').remove();
+                $('div.chartarea').append('<canvas id="chart" width="100" height="100"></canvas>');
+                var mychart  = $("#chart");
+                document.getElementById('date').value='';
+                document.getElementById('product').value='';
+                document.getElementById('company').value='';
+                var lot_id=$('#lot_id').val();
+                $('div.title').append('<div id="maintitle">' + lot_id + 'LOT 총 공정시간(분)</div>');
+                url = '/chrtdata_work?lot_id=' + lot_id 
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                        var chrtlabels= results.labels;
+                        var chrtdata=results.values;
+                        var data =  {
+                            labels : chrtlabels,
+                            datasets : [{
+                                    data : chrtdata
+                            }]
+                        };
+                        var options = {
+
+                            };
+                        var chart = new Chart(mychart,{
+                            type: 'doughnut',
+                            data: data,
+                            options: options
+                        });
+                });
+            }
+        </script>
+    </body>
+</html>

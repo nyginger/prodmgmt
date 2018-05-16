@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--<META HTTP-EQUIV="refresh" CONTENT="10"> -->
+<title>EINS MONITORING SYSTEM</title>
+<script src="{{ url_for('static', filename='socket.io.slim.js')}}"></script>
+<script src="{{ url_for('static', filename='jquery.min.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='init.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='moment.min.js')}}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css')}}" >
+<script src="{{ url_for('static', filename='bootstrap.min.js')}}"></script> 
+<script type="text/javascript" src="{{ url_for('static', filename='masonry.pkgd.min.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='app.js')}}"></script>
+
+<style>
+    img {
+        max-width: 100%
+    }
+    input, textarea {
+        max-width:100%
+    }
+    .header {
+        background: url(header.png) 50% no-repeat;
+        background-size: contain
+    }
+    .header {
+        font-family: Arial
+    }
+    .wf-opensans-n4-active .header {
+        font-family: 'Open Sans'
+    }
+    /*Default styles*/
+    .related-products li {
+        float: left;
+        width: 50%;
+    }
+    p.small{
+        line-height:90%;
+    }
+
+    div.msg_bbl {
+    background-color: #EEECEC;
+    padding: 5px 10px;
+    border-radius: 10px;
+    color: #5F5E5E;
+    margin-bottom: 5px;
+      }
+
+
+
+    
+</style>
+</head>
+<body>
+<div class="container">
+
+        <div style="padding-top: 15px;"></div>
+
+        <h4><b>사진정보</b><small>({{lot_id}})</small></h4>
+
+
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot_id,'입고',img_stg1,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot_id,'폴리싱',img_stg2,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot_id,'마스킹',img_stg3,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot_id,'아노다이징',img_stg4,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot_id,'출하',img_stg5,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot_id,'소형CR',img_stg6,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot_id,'생산관리',img_stg9,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot_id,'외주',img_stg7,stages) }}
+
+
+
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="en">
+    <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css')}}" >
+          <link rel="stylesheet" href="{{ url_for('static', filename='cover.css')}}" > 
+          <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+          <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+          <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+          <title>제품별 통계 </title>      <!-- import plugin script -->   
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+          <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+          <script src="{{ url_for('static', filename='chartist-plugin-pointlabels.js')}}"></script>
+          <style>
+            .ct-label.ct-horizontal { 
+                position: relative;
+                text-align: right;
+                transform: rotate(-45deg); 
+                transform-origin: 100% 0;
+            }
+          </style>
+   </head>
+   <body>
+       
+       <!-- <div class="card" style="width: 50rem;"> -->
+            <div data-role="main" class="ui-content">
+                <h3 class="page-header">월별 제품별 수량차트</h3>
+                
+                <nav class="breadcrumb">
+                {% if ctype | int ==1 %}
+                        <span class="breadcrumb-item active">제품별 월별수량</span>
+                        <a class="breadcrumb-item" href="#" onclick="load2();">제품별 수량비교</a>
+                {% else %}
+                        <a class="breadcrumb-item" href="#" onclick="load1();">제품별 월별수량</a>
+                        <span class="breadcrumb-item active">제품별 수량비교</span>
+                {% endif %}
+                </nav>
+                <form method="post" action="#">
+                    {% if ctype|int ==1 %}
+                        <select id="product1" onchange="updateChart1();">
+                        <option value="전체">전체</option>
+                            {% for p in prod_list %}
+                                {% if p[0]==prod | int  %}
+                                    <option value="{{p[0]}}" selected>{{p[1]}}</option>
+                                {% else %}
+                                    <option value="{{p[0]}}">{{p[1]}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <select id="company1" onchange="updateChart1();">
+                            <option value="전체">전체</option>
+                            {% for c in  com_list %}
+                                {% if c[0]==com | int  %}
+                                    <option value="{{c[0]}}" selected>{{c[1]}}</option>
+                                {% else %}
+                                    <option value="{{c[0]}}">{{c[1]}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <label for="year">Year:</label>
+                        <input type="range" name="year" id="year" value="2017" min="2015" max="2020" onchange="updateChart2();">
+                        <label for="month">Month:</label>
+                        <input type="range" name="month" id="month" value="1" min="1" max="12" onchange="updateChart2();">
+
+                        <select id="company2" onchange="updateChart2();">
+                            <option value="전체">전체</option>
+                            {% for c in  com_list %}
+                                {% if c[0]==com | int  %}
+                                    <option value="{{c[0]}}" selected>{{c[1]}}</option>
+                                {% else %}
+                                    <option value="{{c[0]}}">{{c[1]}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    {% endif %}
+                </form>
+           <!-- </div> -->
+
+
+            <div id="chartarea"><div id="chart" class="ct-chart ct-perfect-fourth"></div></div>
+        </div>
+        <script>
+    
+            var myLineChart;
+            var myBarChart;
+            var ctype={{ctype}};
+            if (ctype==1){
+                var url='/chrtdata_lotcnt?ctype=1&product=6&company=null';
+            } else {
+                var url='/chrtdata_lotcnt?ctype=2&year=2017&month=1&product=null&company=null';
+            }
+            
+            var getData=$.get(url);
+            getData.done(function(results){
+                var chrtlabels= results.labels;
+                var chrtdata=results.values;
+                var data =  {
+                        labels : chrtlabels,
+                        series : [ chrtdata
+                        ]
+                };
+                if (ctype==1){
+                    var options={
+                        lineSmooth: false,
+                        plugins: [
+                            Chartist.plugins.ctPointLabels({
+                              textAnchor: 'middle'
+                            })
+                        ]
+                    };
+
+                    myLineChart= new Chartist.Line('.ct-chart', data, options);
+                } else {
+                    var options = {
+                        seriesBarDistance: 10,
+                        reverseData: true,
+                        horizontalBars: false,
+                        axisY: {
+                            offset: 70
+                        },
+                        plugins: [
+                            Chartist.plugins.ctPointLabels({
+                              textAnchor: 'middle'
+                            })
+                        ]
+                    };
+                    myBarChart= new Chartist.Bar('.ct-chart', data, options);
+                }
+
+                
+            });
+
+
+
+            function updateChart1(){
+                var product=$('#product1').val();
+                var company=$('#company1').val();
+                var url='/chrtdata_lotcnt?ctype=1&product=' + product + '&company=' + company;
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                    var chrtlabels= results.labels;
+                    var chrtdata=results.values;
+                    var data =  {
+                        labels : chrtlabels,
+                        series : [ chrtdata
+                        ]
+                    };
+                    myLineChart.update(data);
+                });
+             }
+
+            function updateChart2(){
+                
+                var year=$('#year').val();
+                var month=$('#month').val();
+                var company=$('#company2').val();
+                var url='/chrtdata_lotcnt?ctype=2&year=' + year + '&month=' + month + '&product=null&company=' + company;
+                var updatedData=$.get(url);
+                updatedData.done(function(results){
+                    var chrtlabels= results.labels;
+                    var chrtdata=results.values;
+                    var data =  {
+                        labels : chrtlabels,
+                        series : [ chrtdata
+                        ]
+                    };
+                    myBarChart.update(data);
+                });
+            }
+
+            function load1(){
+                window.location.replace("/chart_lot?ctype=1");
+            }
+            function load2(){
+                window.location.replace("/chart_lot?ctype=2");
+            }
+
+
+        </script>
+        
+    </body>
+</html>

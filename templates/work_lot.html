@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EINS 공정Lot 정보조회</title>
+
+<script type="text/javascript" src="{{url_for('static', filename='socket.io.slim.js')}}"></script>
+<script src="{{url_for('static', filename='jquery.min.js')}}"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}" >
+<script src="{{url_for('static', filename='semantic.min.js')}}"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='semantic.min.css')}}" >
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+    div.msg_bbl {
+    background-color: #ddd;
+    padding: 5px 10px;
+    border-radius: 10px;
+    color: #555;
+    margin-bottom: 5px;
+      }
+      img {
+      max-width: 100%
+      }
+      input, textarea {
+      max-width:100%
+      }
+      .header {
+      background: url(header.png) 50% no-repeat;
+      background-size: contain
+      }
+      .header {
+      font-family: Arial
+    }
+    .wf-opensans-n4-active .header {
+      font-family: 'Open Sans'
+    }
+    /*Default styles*/
+    .related-products li {
+      float: left;
+      width: 50%;
+    }
+    body { height: 1000px; }
+
+    thead{
+        background-color:rgb(240, 240, 240);
+    }
+
+
+</style>
+<meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
+<script>
+    $(document).ready(function(){
+        $(window).scroll(moveScroll); 
+    })
+
+    function moveScroll(){
+        var scroll = $(window).scrollTop();
+        var anchor_top = $("#maintable").offset().top;
+        var anchor_bottom = $("#bottom_anchor").offset().top;
+        if (scroll>anchor_top && scroll<anchor_bottom) {
+        clone_table = $("#clone");
+        if(clone_table.length == 0){
+            clone_table = $("#maintable").clone();
+            clone_table.attr('id', 'clone');
+            clone_table.css({position:'fixed',
+                     'pointer-events': 'none',
+                     top:0});
+            clone_table.width($("#maintable").width());
+            $("#table-container").append(clone_table);
+            $("#clone").css({visibility:'hidden'});
+            $("#clone thead").css({'visibility':'visible','pointer-events':'auto'});
+        }
+        } else {
+        $("#clone").remove();
+        }
+    }
+</script>
+</head>
+
+<body>
+
+
+
+    <div class="container-fluid">
+      
+        {% if zone %}
+            <h4 class="card-header" style="color:#FAAC58;width:100%;">{{zone.zone}} 작업진행　Lot</h4>
+        {% endif %}
+       
+              {% from "_pagehelpers.html" import render_pagination %}
+              {{ render_pagination(lots,query,zone.zone_id,'lots') }}
+                <div id="table-container" class="table-reponsive" >
+                <table id="maintable" class="table table-hover">
+                
+                        <thead>
+                        <tr >
+                            <th rowspan="2" scope="rowgroup">Lot ID</th>
+                            <th rowspan="2" scope="rowgroup">업체</th>
+                            <th rowspan="2" scope="rowgroup">제품</th>
+                            <th rowspan="2" scope="rowgroup">SN</th>
+                            <th rowspan="2" scope="rowgroup">수량</th>
+                            <th rowspan="2" scope="rowgroup">담당자</th>
+                            <th rowspan="2" scope="rowgroup">입고일자</th>
+                            <th rowspan="2" scope="rowgroup">납기일</th>
+                            <th colspan="20" scope="colgroup" style="text-align:center;">공정</th> 
+                        </tr>   
+                        <tr>
+                            <th>１</th>
+                            <th>２</th>
+                            <th>３</th>
+                            <th>４</th>
+                            <th>５</th>
+                            <th>６</th>
+                            <th>７</th>
+                            <th>８</th>
+                            <th>９</th>
+                            <th>１０</th>
+                            <th>１１</th>
+                            <th>１２</th>
+                            <th>１３</th>
+                            <th>１４</th>
+                            <th>１５</th>
+                            <th>１６</th>
+                            <th>１７</th>
+                            <th>１８</th>
+                            <th>１９</th>
+                            <th>２０</th>
+                        </tr>
+                                
+                        </thead>
+                        <tbody>
+                        {% for lot in lots.items %}
+                            <tr>
+                                <td><a href="{{url_for('lot_info', lot_id=lot.lot_id)}}" >{{lot.lot_id}} </a></td>
+                                <td><a href="{{url_for('search', query=lot.company, idx='lots')}}">{{lot.company}} </a></td>
+                                <td><a href="{{url_for('search', query=lot.prod_name, idx='lots')}}">{{lot.prod_name}}</a></td>
+                                <td><a href="{{url_for('search', query=lot.prod_serial, idx='lots')}}">{{lot.prod_serial}}</a></td>
+                                <td>{{lot.counts|int}}</td>
+                                <td><a href="{{url_for('search', query=lot.person, idx='lots')}}" >{{lot.person}} </a></td>
+                                <td><a href="{{url_for('search', query=lot.in_date.strftime('%Y-%m-%d'), idx='lots')}}" >{{lot.in_date.strftime('%m-%d') }} </a></td>
+                                <td><a href="{{url_for('search', query=lot.target_date.strftime('%Y-%m-%d'), idx='lots')}}" >{{lot.target_date.strftime('%m-%d') }} </a></td>
+                                <td>{% if lot.proc1 %}{% if lot.proc1==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc1, idx='works')}}">{{lot.proc1}}</a>{% else %}{{lot.proc1}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc2 %}{% if lot.proc2==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc2, idx='works')}}">{{lot.proc2}}</a>{% else %}{{lot.proc2}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc3 %}{% if lot.proc3==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc3, idx='works')}}">{{lot.proc3}}</a>{% else %}{{lot.proc3}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc4 %}{% if lot.proc4==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc4, idx='works')}}">{{lot.proc4}}</a>{% else %}{{lot.proc4}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc5 %}{% if lot.proc5==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc5, idx='works')}}">{{lot.proc5}}</a>{% else %}{{lot.proc5}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc6 %}{% if lot.proc6==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc6, idx='works')}}">{{lot.proc6}}</a>{% else %}{{lot.proc6}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc7 %}{% if lot.proc7==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc7, idx='works')}}">{{lot.proc7}}</a>{% else %}{{lot.proc7}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc8 %}{% if lot.proc8==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc8, idx='works')}}">{{lot.proc8}}</a>{% else %}{{lot.proc8}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc9 %}{% if lot.proc9==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc9, idx='works')}}">{{lot.proc9}}</a>{% else %}{{lot.proc9}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc10 %}{% if lot.proc10==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc10, idx='works')}}">{{lot.proc10}}</a>{% else %}{{lot.proc10}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc11 %}{% if lot.proc11==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc11, idx='works')}}">{{lot.proc11}}</a>{% else %}{{lot.proc11}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc12 %}{% if lot.proc12==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc12, idx='works')}}">{{lot.proc12}}</a>{% else %}{{lot.proc12}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc13 %}{% if lot.proc13==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc13, idx='works')}}">{{lot.proc13}}</a>{% else %}{{lot.proc13}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc14 %}{% if lot.proc14==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc14, idx='works')}}">{{lot.proc14}}</a>{% else %}{{lot.proc14}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc15 %}{% if lot.proc15==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc15, idx='works')}}">{{lot.proc15}}</a>{% else %}{{lot.proc15}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc16 %}{% if lot.proc16==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc16, idx='works')}}">{{lot.proc16}}</a>{% else %}{{lot.proc16}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc17 %}{% if lot.proc17==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc17, idx='works')}}">{{lot.proc17}}</a>{% else %}{{lot.proc17}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc18 %}{% if lot.proc18==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc18, idx='works')}}">{{lot.proc18}}</a>{% else %}{{lot.proc18}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc19 %}{% if lot.proc19==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc19, idx='works')}}">{{lot.proc19}}</a>{% else %}{{lot.proc19}}{% endif %}{% endif %}</td>
+                                <td>{% if lot.proc20 %}{% if lot.proc20==lot.cur_work %}<a role="button" class="ui positive basic button" href="{{url_for('search', query=lot.proc20, idx='works')}}">{{lot.proc20}}</a>{% else %}{{lot.proc20}}{% endif %}{% endif %}</td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                </table>
+                <div id="bottom_anchor"></div>
+            </div>
+       
+</div>
+
+
+
+
+
+
+</body>
+</html>

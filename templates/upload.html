@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<title>NO title</title>
+
+	<style>
+	  div.msg_bbl {
+	    background-color: #ddd;
+	    padding: 5px 10px;
+	    border-radius: 10px;
+	    color: #555;
+	    margin-bottom: 5px;
+	  }
+	</style>
+</head>
+
+<body>
+	<h1>File Upload</h1>
+
+	<form method="POST" action="{{url_for('up_result')}}" enctype="multipart/form-data">
+		 <input type="text" name="work_name" class="work_name form-control" style="width:25%;" placeholder="위치">
+          <div style="padding-top: 5px;"></div>
+          <input type="text" name="lot_id" class="lot_id form-control" style="width:25%;"  placeholder="Lot번호">
+          <div style="padding-top: 5px;"></div>
+		<label for="photo">사진선택</label>
+		<input type="file" name="file"  accept="image/*" multiple>
+		<button type="submit" class="btn btn-default">업로드</button>
+	</form>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html> 

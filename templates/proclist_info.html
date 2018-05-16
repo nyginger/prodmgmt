@@ -1,0 +1,35 @@
+{% extends "template.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', filename='myModal2.css')}}" >
+<style>
+  body {
+    padding-top: 50px;
+    min-height: 1000px;
+  }
+	.grid-item {
+		float: left;
+		width: 300px;
+		height: 30px;
+		border: 0px;
+		}
+	.grid-sizer{
+		width:90%
+	}
+	.grid-controller{
+		width:10%
+
+	}
+</style>
+<script src="{{url_for('static', filename='lot_proc.js')}}"></script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    {% from "proc_list.html" import render_proclist %}
+    {{render_proclist(new_procs,stage_procs,com_list)}}
+
+
+</div>
+    
+    
+{% endblock %}

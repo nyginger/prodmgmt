@@ -1,0 +1,110 @@
+{% extends "template.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{url_for ('static', filename='semantic.min.css')}}" >
+<script src="{{url_for ('static', filename='semantic.min.js')}}"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+
+    <div class="container">
+        <div class="card">
+            {% if query %}
+                <h3 class="card-header"><b style="color:coral;">{{query}}</b> 검색결과</h4>
+            {% endif %}
+            <div class="card-body">
+
+                    <h4 class="ui horizontal divider header">
+                            <i class="material-icons">library_books</i>
+                            <strong>LOT 조회</strong>&nbsp;&nbsp;<a href="{{url_for('search', query=query, idx='lots')}}"><u><small>더보기</small></u></a>
+                    </h4>
+     
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                                <tr>
+                                    <td>Lot ID</td>
+                                    <td>업체</td>
+                                    <th>제품</th>
+                                    <th>SN</th>
+                                    <td>수량</td>
+                                    <td>담당자</td>
+                                    <td>입고일자</td>
+                                    <td>납기일</td>
+                                </tr>
+                                
+                                {% for lot in lots %}
+                                <tr>
+                                    <td> <a href="{{url_for('lot_info', lot_id=lot.lot_id)}}" >{{lot.lot_id}} </a></td>
+                                    <td><a href="{{url_for('search', query=lot.company, idx='lots')}}" >{{lot.company}} </a></td>
+                                    <td><a href="{{url_for('search', query=lot.prod_name, idx='lots')}}">{{lot.prod_name}}</a></td>
+                                    <td>
+                                        {% if lot.prod_serial|replace(",","") %}
+                                            {% set se_num=lot.prod_serial.split(',') %}
+                                            {% for sn in se_num %}
+                                                <a href="{{url_for('search', query=sn, idx='lots')}}">{{sn}}</a>
+                                            {% endfor %}
+                                        {% elif lot.prod_serial|replace(".","") %}
+                                            {% set se_num2=lot.prod_serial.split('.') %}
+                                            {% for sn2 in se_num2 %}
+                                                <a href="{{url_for('search', query=sn2, idx='lots')}}">{{sn2}}</a>
+                                            {% endfor %}
+                                        {% else %}
+                                            <a href="{{url_for('search', query=lot.prod_serial, idx='lots')}}">{{lot.prod_serial}}</a>
+                                        
+                                        {% endif %}
+                                    </td>
+                                    <td>{{lot.counts|int}}</td>
+                                    <td> <a href="{{url_for('search', query=lot.person, idx='lots')}}" >{{lot.person}} </a></td>
+                                    <td><a href="{{url_for('search', query=lot.in_date.strftime('%Y-%m-%d'), idx='lots')}}" >{{lot.in_date.strftime('%Y-%m-%d') }} </a></td>
+                                    <td> <a href="{{url_for('search', query=lot.target_date.strftime('%Y-%m-%d'), idx='lots')}}" >{{lot.target_date.strftime('%Y-%m-%d') }} </a></td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+
+                    <h4 class="ui horizontal divider header">
+                        <i class="material-icons">view_list</i>
+                        <strong>작업기록 조회</strong>&nbsp;&nbsp;<a href="{{url_for('search', query=query, idx='works')}}"><small><u>더보기</u></small></a>
+                    </h4>
+  
+                <div class="message_holder">
+
+                    {% for msg in works %}
+                    <div class="msg_bbl">
+                        <b style="color: #000"> {{msg.work_name}}</b>
+                        <a href="{{url_for('lot_info', lot_id=msg.lot_id)}}" target="_blank"><b style="color:brown;">{{msg.lot_id}}&nbsp; </b></a>
+                        <a href="{{url_for('search', query=msg.company)}}" target="_blank"><b style="color:darkblue;">{{msg.company}}&nbsp;</b></a>
+                        <a href="{{url_for('search', query=msg.prod_name)}}" target="_blank">{{msg.prod_name}}&nbsp;</a>
+                        {{msg.in_out}}&nbsp;
+                        {% if msg.person %}
+                            {% if msg.person|replace( ",", "") %}
+                                {% set persons = msg.person.split(',') %}
+                                {% for per in persons %}
+                                    <a href="{{url_for('search', query=per)}}" target="_blank">{{per}}&nbsp;</a>
+                                {% endfor %}
+                            {% else %}
+                                <a href="{{url_for('search', query=msg.person)}}" target="_blank">{{msg.person}}&nbsp;</a>   
+                            {% endif %}
+                        {% endif %}
+                        {% if msg.filename %}
+                        <a href="{{url_for('return_file',lot_id=msg.lot_id,filename=msg.filename, filelocation=msg.filelocation)}}">{{msg.filename}}</a>
+                        {% endif %}
+
+                        <div style="text-align: right;"><small> {{ msg.pub_time.strftime('%Y-%m-%d @ %H:%M:%S')   }}</small></div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+            
+         
+
+
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

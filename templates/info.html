@@ -1,0 +1,39 @@
+{% extends "template.html" %}
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+{% block body %}
+    <div class="messages">
+        <br>
+        <br>
+            <h2>LOT 정보조회/수정</h2>
+               {% if lot_id is not defined %}
+                      
+                        <form action="/loadinfo" method="GET" class="form-inline">
+                   Lot ID: <input list="lot_id" name="lot_id" size=15 class="form-control" placeholder="170101-01" >&nbsp;&nbsp;
+                                  <datalist id="lot_id" style="height:500px;overflow: auto;">
+                                         {% for lot_id in lot_ids %}
+                                             <option value="{{lot_id.lot_id}}">
+                                         {% endfor %}
+                                </datalist>
+                           <input type=submit value="조회"><br><br>
+                        </form>	
+                     <hr>
+              {% else %}
+		        <br> 
+
+					{% from "loadlot.html" import render_loadlot %}
+					{% if k is defined %}
+							{{ render_loadlot(k,coms,prods,anod_types,persons,prod_gens,today,cur_prog) }}
+					{% else %}
+							{{ render_loadlot("",coms,prods,anod_types,persons,prod_gens,today,cur_prog) }}
+					{% endif %}
+                <hr>
+               		<h4>LOT별 공정설정</h4>
+
+                    {% from "lotprocess.html" import render_lotprocess %}
+                    	{{render_lotprocess(lot_id,new_procs,lotprocs)}}
+                <hr>
+                    {% from "proc_table.html" import render_proc_table %}
+                    {{render_proc_table(works,lotworkdownqry,return_url,procs,anods)}}
+              {% endif %}
+    </div>
+{% endblock %}

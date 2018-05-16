@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EINS MONITORING SYSTEM</title>
+<script type="text/javascript" src="{{url_for('static',filename='socket.io.slim.js')}}"></script>
+<script src="{{url_for('static',filename='jquery.min.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='init.js')}}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css')}}" >
+<script type="text/javascript" src="{{ url_for('static', filename='masonry.pkgd.min.js')}}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='app.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='jquery.colorbox.js')}}"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+
+    img {
+        max-width: 100%
+    }
+    input, textarea {
+        max-width:100%
+    }
+    .header {
+        background: url(header.png) 50% no-repeat;
+        background-size: contain
+    }
+    .header {
+        font-family: Arial
+    }
+    .wf-opensans-n4-active .header {
+        font-family: 'Open Sans'
+    }
+    /*Default styles*/
+    .related-products li {
+        float: left;
+        width: 50%;
+    }
+
+
+
+    div.msg_bbl {
+        background-color: #EEECEC;
+        padding: 5px 10px;
+        border-radius: 10px;
+        color: #5F5E5E;
+        margin-bottom: 5px;
+      }
+
+
+    .grid-item {
+        float: left;
+        width: 120px;
+        height: 150px;
+        background:rgb(221, 248, 252);
+        text-align:center;
+        border: 1px solid white;
+        border-radius: 8px;
+        overflow:hidden;
+        margin:auto;
+    }
+    .grid-photo {
+        float: left;
+        width: 120px;
+        height: 180px;
+        background:white;
+        text-align:center;
+        border: 0px;
+        border-radius: 3px;
+        overflow:hidden;
+        margin:auto;
+    }
+    .grid-item:hover {
+        background: rgb(237, 209, 245);
+        border-color: hsla(0, 0%, 0%, 0.1);
+        cursor: pointer;
+      }
+    .grid-item--width2 { width: 320px; }
+    .grid-item--width3 { width: 480px; }
+    .grid-item--width4 { width: 640px; }
+    
+    .grid-item--height2 { height: 200px; }
+    .grid-item--height3 { height: 260px; }
+    .grid-item--height4 { height: 360px; }
+    
+    
+    .grid-item--gigante {
+        width: 320px;
+        height: 360px;
+    }
+
+    .grid-item-new{
+        border: 1px solid hsla(0, 93%, 52%, 0.1);
+    }      
+      
+</style>
+<link rel="stylesheet" href="{{url_for ('static', filename='semantic.min.css')}}" >
+<script src="{{url_for ('static', filename='semantic.min.js')}}"></script>
+</head>
+
+<body>
+
+
+    <div class="container-fluid">
+        <div class="card">
+        {% if zone.zone %}
+
+            <h5 class="card-header" style="color:#FAAC58">{{zone.zone}} 작업 현황</h5>
+        {% endif %}
+            <div class="card-body">
+              {% from "_pagehelpers.html" import render_pagination %}
+              {{ render_pagination(works,query,zone.zone_id,'works') }}
+                {% if zone.zone %}  
+                     <div id="zone{{zone.zone_id}}" class="grid">
+                {% else %}
+                    <div class="grid">
+                {% endif %}
+                        {% for work in works.items %}
+                
+                            <div id="{{work.id}}" class="grid-item">
+                                <ul class="list-unstyled">
+
+                                    <li><b style="color: #000"> {{work.work_name}}&nbsp;</b></li>
+                                    <li><a href="{{url_for('lot_info', lot_id=work.lot_id)}}" target="_blank"><b style="color:brown;">{{work.lot_id}}&nbsp;</b> </a></li>
+                                        <li><a href="{{url_for('search', query=work.company)}}" target="_blank"><b style="color:darkblue;">{{work.company}}&nbsp;</b></a></li>
+                                            <li><a href="{{url_for('search', query=work.prod_name)}}" target="_blank">{{work.prod_name}}&nbsp;</a>
+                                        {{work.in_out}}</li>
+                                        {% if work.person %}
+                                            <li>
+                                                {% if work.person|replace( ",", "") %}
+                                                    {% set persons = work.person.split(',') %}
+                                                    {% for per in persons %}
+                                                        <a href="{{url_for('search', query=per)}}" target="_blank">{{per}}&nbsp;</a>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <a href="{{url_for('search', query=work.person)}}" target="_blank">{{work.person}}&nbsp;</a>   
+                                                {% endif %}
+                                            </li>
+                                        {% endif %}
+                                        {% if work.filename %}
+                                            <li><a class="ajax" href="{{url_for('get_gallery',lot_id=work.lot_id)}}"><i class="material-icons" style="font-size:25px;color:red">photo_library</i></a></li>
+                                        {% endif %}
+                                        <small> {{ work.pub_time.strftime('%Y-%m-%d @ %H:%M')   }}</small>
+                                        <a id="w{{work.id}}" style="text-align:right;" href="#" onclick="delWork(this);"><small><span class="badge badge-pill badge-light">x</span></small></a>
+                                </ul>
+                            </div>
+            
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
+</div>
+
+
+<script>
+$(document).ready(function() {
+    $("#chart_work_url").attr("href", chart_url + "/chart_work");
+    $("#chart_lot_url").attr("href", chart_url + "/chart_lot");
+});
+
+</script>
+
+
+</body>
+</html>

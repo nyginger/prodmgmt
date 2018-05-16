@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}" > 
+<script src="{{url_for('static', filename='jquery.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='barcode.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='init.js')}}"></script>
+<script type="text/javascript">
+
+var barcodeitem;
+var lot;
+var person;
+window.onload=function(){
+	barcodeitem=localStorage.getItem("barcodeitem");
+	lot=localStorage.getItem("lot");
+	person=localStorage.getItem("person");
+}
+
+var sound = new Audio("barcode.wav");
+
+$(document).ready(function() {
+
+	barcode.config.start = 0.1;
+	barcode.config.end = 0.9;
+	barcode.config.video = '#barcodevideo';
+	barcode.config.canvas = '#barcodecanvas';
+	barcode.config.canvasg = '#barcodecanvasg';
+	barcode.setHandler(function(barcode) {
+		$('#result').html(barcode);
+		
+	});
+	barcode.init();
+
+	$('#result').bind('DOMSubtreeModified', function(e) {
+		sound.play();
+		var barcodeOutput=$('#result').text();
+		if (lot!='null'){
+			window.open(app_url+'/?'+barcodeitem+'='+barcodeOutput+'&lot='+lot, "_self")
+		} else {
+			window.open(app_url+'/?'+barcodeitem+'='+barcodeOutput+'&person='+person, "_self")
+		}
+		
+
+		
+	});
+
+
+});
+
+</script>
+
+</head>
+<body>
+
+<div id="barcode">
+	<video id="barcodevideo" autoplay></video>
+	<canvas id="barcodecanvasg" ></canvas>
+</div>
+<canvas id="barcodecanvas"></canvas>
+<div id="result"></div>
+
+
+</body>
+</html>

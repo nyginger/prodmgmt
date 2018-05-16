@@ -1,0 +1,100 @@
+{% macro render_zone_nav() %}
+<nav class="my-menu-bar">
+
+            
+    <div class="my-dropdown">
+        <button class="my-dropbtn">입고검사</button>
+        <div class="my-dropdown-content">
+            <a href="{{url_for('zonepage', zone_id=1)}}">진행현황</a>
+            <a href="{{url_for('work', zone_id=1)}}">진행LOT별 현황</a>
+        </div>
+    </div>
+    <div style="float:left;padding-left:20px;"></div>
+    <div class="my-dropdown">
+        <button class="my-dropbtn">폴리싱</button>
+        <div class="my-dropdown-content">
+            <a href="{{url_for('zonepage', zone_id=2)}}">진행현황</a>
+            <a href="{{url_for('work', zone_id=2)}}">진행LOT별 현황</a>
+        </div>
+    </div>
+    <div style="float:left;padding-left:20px;"></div>
+    <div class="my-dropdown">
+        <button class="my-dropbtn">마스킹</button>
+        <div class="my-dropdown-content">
+            <a href="{{url_for('zonepage', zone_id=3)}}">진행현황</a>
+            <a href="{{url_for('work', zone_id=3)}}">진행LOT별 현황</a>
+        </div>
+    </div>
+    <div style="float:left;padding-left:20px;"></div>
+    <div class="my-dropdown">
+        <button class="my-dropbtn">아노다이징</button>
+        <div class="my-dropdown-content">
+            <a href="{{url_for('zonepage', zone_id=4)}}">진행현황</a>
+            <a href="{{url_for('work', zone_id=4)}}">진행LOT별 현황</a>
+        </div>
+    </div>
+    <div style="float:left;padding-left:20px;"></div>
+    <div class="my-dropdown">
+        <button class="my-dropbtn">출고</button>
+        <div class="my-dropdown-content">
+            <a href="{{url_for('zonepage', zone_id=5)}}">진행현황</a>
+            <a href="{{url_for('work', zone_id=5)}}">진행LOT별 현황</a>
+        </div>
+    </div>
+    <div style="float:left;padding-left:20px;"></div>
+    <div class="my-dropdown">
+        <button class="my-dropbtn">소형CR</button>
+        <div class="my-dropdown-content">
+            <a href="{{url_for('zonepage', zone_id=6)}}">진행현황</a>
+            <a href="{{url_for('work', zone_id=6)}}">진행LOT별 현황</a>
+        </div>
+    </div>
+    <div style="float:left;padding-left:20px;"></div>
+    <div class="my-dropdown">
+        <button class="my-dropbtn">외주</button>
+        <div class="my-dropdown-content">
+            <a href="{{url_for('zonepage', zone_id=7)}}">진행현황</a>
+            <a href="{{url_for('work', zone_id=7)}}">진행LOT별 현황</a>
+        </div>
+    </div>
+    <div style="float:left;padding-left:20px;"></div>
+    <div class="my-dropdown">
+        <button class="my-dropbtn">생산관리</button>
+        <div class="my-dropdown-content">
+            <a href="{{url_for('zonepage', zone_id=9)}}">진행현황</a>
+            <a href="{{url_for('work', zone_id=9)}}">진행LOT별 현황</a>
+        </div>
+    </div>
+    <div style="float:left;padding-left:20px;"></div>
+    <div class="my-dropdown">
+        <button class="my-dropbtn">차트</button>
+        <div class="my-dropdown-content">
+            <a id="chart_work_url">공정 차트</a>
+            <a id="chart_lot_url" >제품 차트</a>
+        </div>
+    </div>
+</nav>
+<div style="padding-top:20px;"></div>
+        <!--<a class="breadcrumb-item" href="{{url_for('zonepage', zone_id=1)}}">입고검사</a>
+          <a class="breadcrumb-item" href="{{url_for('zonepage', zone_id=2)}}">폴리싱</a>
+          <a class="breadcrumb-item" href="{{url_for('zonepage', zone_id=3)}}">마스킹</a>
+          <a class="breadcrumb-item" href="{{url_for('zonepage', zone_id=4)}}">아노다이징</a>
+          <a class="breadcrumb-item" href="{{url_for('zonepage', zone_id=5)}}">출하</a>
+          <a class="breadcrumb-item" href="{{url_for('zonepage', zone_id=6)}}">소형CR</a>
+          <a class="breadcrumb-item" href="{{url_for('zonepage', zone_id=7)}}">외주</a>
+          <a class="breadcrumb-item" href="{{url_for('zonepage', zone_id=9)}}">생산관리</a>
+            <a id="chart_work_url" class="breadcrumb-item">공정 차트</a>
+            <a id="chart_lot_url" class="breadcrumb-item">제품 차트</a>
+          <!-- <span class="breadcrumb-item active">Bootstrap</span> 
+    </ol>
+</nav>-->
+
+<script>
+$(document).ready(function(){
+    $('#chart_work_url').attr('href',chart_url +"/chart_work" );
+    $('#chart_lot_url').attr('href',chart_url +"/chart_lot" );
+
+});
+    
+</script>
+{% endmacro %}

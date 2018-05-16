@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EINS Lot정보조회</title>
+<script type="text/javascript" src="{{url_for('static', filename='socket.io.slim.js')}}"></script>
+<script src="{{url_for('static', filename='jquery.min.js')}}"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}" >
+<script src="{{url_for('static', filename='semantic.min.js')}}"></script>
+<link rel="stylesheet" href="{{url_for('static', filename='semantic.min.css')}}" >
+
+<style>
+    div.msg_bbl {
+    background-color: #ddd;
+    padding: 5px 10px;
+    border-radius: 10px;
+    color: #555;
+    margin-bottom: 5px;
+      }
+      img {
+      max-width: 100%
+      }
+      input, textarea {
+      max-width:100%
+      }
+      .header {
+      background: url(header.png) 50% no-repeat;
+      background-size: contain
+      }
+      .header {
+      font-family: Arial
+    }
+    .wf-opensans-n4-active .header {
+      font-family: 'Open Sans'
+    }
+    /*Default styles*/
+    .related-products li {
+      float: left;
+      width: 50%;
+    }
+    body { height: 1000px; }
+    thead{
+        background-color:rgb(240, 240, 240);
+    }
+</style>
+<script>
+    $(document).ready(function(){
+        $(window).scroll(moveScroll); 
+    })
+
+    function moveScroll(){
+        var scroll = $(window).scrollTop();
+        var anchor_top = $("#table1").offset().top;
+        var anchor_bottom = $("#bottom_anchor").offset().top;
+        if (scroll>anchor_top && scroll<anchor_bottom) {
+        clone_table = $("#clone");
+        if(clone_table.length == 0){
+            clone_table = $("#table1").clone();
+            clone_table.attr('id', 'clone');
+            clone_table.css({position:'fixed',
+                     'pointer-events':'none',
+                     top:0});
+            clone_table.width($("#table1").width());
+            $("#table-container").append(clone_table);
+            $("#clone").css({visibility:'hidden'});
+            $("#clone thead").css({'visibility':'visible','pointer-events':'auto'});
+        }
+        } else {
+        $("#clone").remove();
+        }
+    }
+</script>
+</head>
+
+<body>
+
+
+
+    <div class="container-fluid">
+        <div class="card">
+        {% if query %}
+            <h4 class="card-header" style="color:#FAAC58">{{query}} LOT 검색결과</h4>
+        {% endif %}
+            <div class="card-body">
+              {% from "_pagehelpers.html" import render_pagination %}
+              {{ render_pagination(lots,query,'','lots') }}
+                <div id="table-container" >
+                <table id="table1" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Lot ID</th>
+                            <th>업체</th>
+                            <th>제품</th>
+                            <th>SN</th>
+                            <th>수량</th>
+                            <th>담당자</th>
+                            <th>입고일자</th>
+                            <th>납기일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lot in lots.items %}
+                            <tr>
+                                <td><a href="{{url_for('lot_info', lot_id=lot.lot_id)}}" >{{lot.lot_id}} </a></td>
+                                <td><a href="{{url_for('search', query=lot.company, idx='lots')}}">{{lot.company}} </a></td>
+                                <td><a href="{{url_for('search', query=lot.prod_name, idx='lots')}}">{{lot.prod_name}}</a></td>
+                                <td><a href="{{url_for('search', query=lot.prod_serial, idx='lots')}}">{{lot.prod_serial}}</a></td>
+                                <td>{{lot.counts|int}}</td>
+                                <td><a href="{{url_for('search', query=lot.person, idx='lots')}}" >{{lot.person}} </a></td>
+                                <td><a href="{{url_for('search', query=lot.in_date.strftime('%Y-%m-%d'), idx='lots')}}" >{{lot.in_date.strftime('%Y-%m-%d') }} </a></td>
+                                <td><a href="{{url_for('search', query=lot.target_date.strftime('%Y-%m-%d'), idx='lots')}}" >{{lot.target_date.strftime('%Y-%m-%d') }} </a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                   
+                </table>
+                <div id="bottom_anchor"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+</body>
+</html>

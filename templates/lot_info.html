@@ -1,0 +1,116 @@
+{% extends 'template.html' %}
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', filename='menu.css')}}">
+{% endblock %}
+{% block body %}
+  <div class="container">
+        {% from "_zone_nav.html" import render_zone_nav %}
+        {{render_zone_nav()}}
+
+    <div style="padding-top: 5px;"></div> 
+    {% if lot %}
+        <div class="jumbotron">
+
+                <h3><b style="color:#FAAC58">{{lot.lot_id}} LOT 조회결과</b></h3>
+                <div style="padding-top: 5px;"></div>
+                <div class="row" style="float:right;">
+                    <nav class="breadcrumb">
+                            <a class="breadcrumb-item" href="{{url_for('load_lotinfo',lot_id=lot.lot_id)}}">수정</a>
+                            <a class="breadcrumb-item" href="{{url_for('load_lotinfo')}}">등록</a>
+                    </nav>
+                </div>
+                
+                    <div class="table-responsive"> 
+                        <table class="table">
+                            <tr><th style="text-align:right;">Company</th><td>{{lot.company}}</td></tr>
+                            <tr><th style="text-align:right;">제품</th> <td>{{lot.prod_name}}</td></tr>
+                            <tr><th style="text-align:right;">시리얼번호</th> <td>{{lot.prod_serial}}</td></tr>
+                            <tr><th style="text-align:right;">수량</th>  <td>{{lot.counts}}</td></tr>
+                            <tr><th style="text-align:right;">담당자</th> <td>{{lot.person}}</td></tr>
+                            <tr><th style="text-align:right;">아노다이징</th><td>{{lot.anod_type}}</td></tr>
+                            <tr><th style="text-align:right;">폴리싱 여부</th><td>{{lot.pol_YN}}</td></tr>
+                            <tr><th style="text-align:right;">마스킹 여부</th> <td>{{lot.mask_YN}}</td></tr>
+                            <tr><th style="text-align:right;">실링 여부</th> <td>{{lot.shil_YN}}</td></tr>
+                            <tr><th style="text-align:right;">실링 타입</th> <td>{{lot.shil_type}}</td></tr>
+                            <tr><th style="text-align:right;">납기일자</th> 
+                                <td>{% if lot.target_date=='' %}
+                                        {{lot.target_date}}
+                                    {% else %}
+                                        {{lot.target_date.strftime('%Y-%m-%d')}}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+            
+        </div>
+        <h4><b>Lot 작업정보</b></h4>
+        {% if works %}
+            <div class="table-responsive">
+            <table class="table table-hover">
+                    <tr>
+                        <th>공정일시</th>
+                        <th>공정</th>
+                        <th>투입/완료</th>
+                        <th>작업자</th>
+                        <th>작업인원</th>
+                        <th>메모</th>
+                    </tr>
+
+                    {% for work in works %}
+                    <tr>
+                        <td><small>{{work.pub_time.strftime('%Y-%m-%d %H:%M')}}</small></td>
+                        <td>{{work.work_name}}</td>
+                        <td>{{work.in_out}}</td>
+                        <td>{{work.person}}</td>
+                        <td>{{work.person_count }}</td>
+                        <td>{{work.message}}</td>
+                    </tr>
+                    {% endfor %}
+
+            </table>
+            </div>
+        {% endif %}
+        <hr>
+        <h4><b>LOT별 공정설정</b></h4>
+        
+                {% from "lotprocess.html" import render_lotprocess %}
+                    {{render_lotprocess(lot.lot_id,stages,lotprocs,stage_procs,com_list)}}
+        <hr>
+        <h4><b>Lot 사진정보</b><small>({{lot.lot_id}})</small></h4>
+        <div style="padding-top: 15px;"></div>
+
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot.lot_id,'입고',img_stg1,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot.lot_id,'폴리싱',img_stg2,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot.lot_id,'마스킹',img_stg3,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot.lot_id,'아노다이징',img_stg4,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot.lot_id,'출하',img_stg5,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot.lot_id,'소형CR',img_stg6,stages) }}
+            <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot.lot_id,'생산관리',img_stg9,stages) }}
+           <hr>
+                {% from "_photohelpers.html" import render_photoview %}
+                {{ render_photoview(lot.lot_id,'외주',img_stg7,stages) }}
+
+
+    {% endif %}
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#chart_work").attr("src", chart_url + "/chart_work?lot_id={{lot.lot_id}}");
+    });  
+</script>
+{% endblock %}
