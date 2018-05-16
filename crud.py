@@ -1,4 +1,4 @@
-from eins_app import app,db,APP_ROOT
+from prod_app import app,db,APP_ROOT
 from models.update_data import ins_workdata, ins_lotdata, update_prodtype,update_lot_prod
 
 
